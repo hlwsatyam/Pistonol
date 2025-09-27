@@ -1,9 +1,6 @@
- 
- 
 .env
-pistonol-server/test/na.ua
+pistonol-server/uploads
+pistonol-server/generated_qrcodes
 
 node_modules
-dist
-uploadsa
-  
+pistonol/dist
