@@ -108,7 +108,7 @@ const AdminPanel = () => {
         endDate: filters.dateRange[1] || ''
       });
 
-      const response = await fetch(`http://localhost:5000/api/admin/attendance?${queryParams}`);
+      const response = await fetch(`${import.meta.env.VITE_BackendURL}/api/admin/attendance?${queryParams}`);
       const data = await response.json();
       
       setAttendanceData(data.attendance);
@@ -138,7 +138,7 @@ const AdminPanel = () => {
         endDate: filters.dateRange[1] || ''
       });
 
-      const response = await fetch(`http://localhost:5000/api/admin/leaves?${queryParams}`);
+      const response = await fetch(`${import.meta.env.VITE_BackendURL}/api/admin/leaves?${queryParams}`);
       const data = await response.json();
       
       setLeaveData(data.leaves);
@@ -198,7 +198,7 @@ const AdminPanel = () => {
   const handleApprove = async (id) => {
     setApprovalLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/leaves/${id}/approve`, {
+      const response = await fetch(`${import.meta.env.VITE_BackendURL}/api/admin/leaves/${id}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -223,7 +223,7 @@ const AdminPanel = () => {
   const handleReject = async (id) => {
     setApprovalLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/leaves/${id}/reject`, {
+      const response = await fetch(`${import.meta.env.VITE_BackendURL}/api/admin/leaves/${id}/reject`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 
 // Configure axios base URL
 const axiosInstance = axios.create({
-  baseURL:  "http://localhost:5000",
+  baseURL:  import.meta.env.VITE_BackendURL,
 });
 
 // ================== API ==================
