@@ -1,148 +1,374 @@
 import React, { useState } from 'react';
+import {
+  Table,
+  Card,
+  Button,
+  Modal,
+  Form,
+  Select,
+  Input,
+  Tag,
+  Space,
+  Descriptions,
+  message,
+  Divider
+} from 'antd';
+import {
+  EyeOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  TruckOutlined,
+ 
+  SubnodeOutlined
+} from '@ant-design/icons';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Table, Button, Modal, Form, Input, Select, message, Tag, Card, Typography } from 'antd';
 import axios from '../axiosConfig';
+import { toast } from 'react-hot-toast';
 
-const { Title } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
 
-function CompanyOrdersDashboard() {
+const AdminOrders = () => {
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [form] = Form.useForm();
-  
-  // Fetch pending orders
-  const { data: orders, refetch } = useQuery(['company-orders'], async () => {
-    const res = await axios.get('/orders/company/pending');
-    return res.data;
-  });
-  
-  // Update order status
-  const updateOrderStatus = useMutation(async (values) => {
-    const res = await axios.patch(`/orders/${selectedOrder._id}/status`, values);
-    return res.data;
-  }, {
-    onSuccess: () => {
-      message.success('Order status updated');
-      setModalVisible(false);
-      refetch();
-    },
-    onError: (error) => {
-      message.error(error.response?.data?.message || 'Failed to update order');
+  const [statusForm] = Form.useForm();
+ 
+
+  // Fetch all orders for admin
+  const { data: ordersData,refetch, isLoading } = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: async () => {
+      const response = await axios.get('/orders/admin');
+      return response.data;
     }
   });
-  
-  const handleApproveReject = (order, status) => {
-    setSelectedOrder(order);
-    form.setFieldsValue({ status });
-    setModalVisible(true);
-  };
-  
-  const onFinish = (values) => {
-    updateOrderStatus.mutate(values);
-  };
-  
+
+  // Update order status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ orderId, statusData }) => {
+      const response = await axios.put(`/orders/${orderId}/status`, statusData);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Order status updated successfully!');
+      setIsStatusModalVisible(false);
+      statusForm.resetFields();
+      refetch()
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update order status');
+    }
+  });
+
   const columns = [
     {
-      title: 'Order ID',
-      dataIndex: '_id',
-      key: '_id',
-      render: (id) => id.slice(-6).toUpperCase()
+      title: 'Order Number',
+      dataIndex: 'orderNumber',
+      key: 'orderNumber',
     },
     {
-      title: 'Dealer',
-      dataIndex: ['dealer', 'businessName'],
-      key: 'dealer'
+      title: 'Distributor',
+      dataIndex: ['distributor', 'businessName'],
+      key: 'distributor',
+      render: (businessName, record) => businessName || record?.distributor?.username,
     },
     {
       title: 'Total Amount',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
-      render: (amount) => `₹${amount}`
+      render: (amount) => `₹${amount}`,
     },
     {
-      title: 'Date',
+      title: 'Payment Method',
+      dataIndex: 'paymentMethod',
+      key: 'paymentMethod',
+      render: (method) => (
+        <Tag color={method === 'cash-on-delivery' ? 'blue' : 'green'}>
+          {method === 'cash-on-delivery' ? 'Cash on Delivery' : 'Reward Payment'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        const statusConfig = {
+          pending: { color: 'orange', text: 'Pending' },
+          approved: { color: 'green', text: 'Approved' },
+          rejected: { color: 'red', text: 'Rejected' },
+          shipped: { color: 'blue', text: 'Shipped' },
+          delivered: { color: 'purple', text: 'Delivered' },
+        };
+        const config = statusConfig[status] || { color: 'default', text: status };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
+    },
+    {
+      title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date) => new Date(date).toLocaleDateString()
+      render: (date) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: 'Actions',
+      key: 'actions',
       render: (_, record) => (
-        <div>
-          <Button 
-            type="link" 
-            onClick={() => handleApproveReject(record, 'approved')}
-            style={{ color: 'green' }}
+        <Space>
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewOrder(record)}
           >
-            Approve
+            View
           </Button>
-          <Button 
-            type="link" 
-            onClick={() => handleApproveReject(record, 'rejected')}
-            danger
-          >
-            Reject
-          </Button>
-        </div>
-      )
-    }
+          {record.status === 'pending' && (
+            <>
+              <Button
+                type="link"
+                icon={<CheckOutlined />}
+                onClick={() => handleStatusChange(record, 'approved')}
+                style={{ color: '#52c41a' }}
+              >
+                Approve
+              </Button>
+              <Button
+                type="link"
+                icon={<CloseOutlined />}
+                onClick={() => handleStatusChange(record, 'rejected')}
+                style={{ color: '#ff4d4f' }}
+              >
+                Reject
+              </Button>
+            </>
+          )}
+          {record.status === 'approved' && (
+            <Button
+              type="link"
+              icon={<TruckOutlined />}
+              onClick={() => handleStatusChange(record, 'shipped')}
+            >
+              Ship
+            </Button>
+          )}
+          {record.status === 'shipped' && (
+            <Button
+              type="link"
+              icon={<SubnodeOutlined />}
+              onClick={() => handleStatusChange(record, 'delivered')}
+            >
+              Deliver
+            </Button>
+          )}
+        </Space>
+      ),
+    },
   ];
-  
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setIsViewModalVisible(true);
+  };
+
+  const handleStatusChange = (order, status) => {
+    setSelectedOrder(order);
+    
+    if (status === 'rejected') {
+      setIsStatusModalVisible(true);
+      statusForm.setFieldsValue({ status, adminNotes: '' });
+    } else {
+      updateStatusMutation.mutate({
+        orderId: order._id,
+        statusData: { status }
+      });
+    }
+  };
+
+  const handleStatusUpdate = (values) => {
+    updateStatusMutation.mutate({
+      orderId: selectedOrder._id,
+      statusData: values
+    });
+  };
+
+  const getStatusActions = (status) => {
+    const actions = {
+      pending: ['approve', 'reject'],
+      approved: ['ship'],
+      shipped: ['deliver'],
+      rejected: [],
+      delivered: []
+    };
+    return actions[status] || [];
+  };
+
   return (
-    <Card>
-      <Title level={3}>Pending Orders</Title>
-      
-      <Table
-        columns={columns}
-        dataSource={orders}
-        rowKey="_id"
-      />
-      
+    <div style={{ padding: '24px' }}>
+      <Card title="Order Management">
+        <Table  scroll={{x:true}}
+          columns={columns}
+          dataSource={ordersData?.data || []}
+          loading={isLoading}
+          rowKey="_id"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+          }}
+        />
+      </Card>
+
+      {/* View Order Modal */}
       <Modal
-        title={`${selectedOrder?.status === 'approved' ? 'Approve' : 'Reject'} Order`}
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        title={`Order Details - ${selectedOrder?.orderNumber}`}
+        open={isViewModalVisible}
+        onCancel={() => setIsViewModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsViewModalVisible(false)}>
+            Close
+          </Button>
+        ]}
+        width={800}
+      >
+        {selectedOrder && (
+          <Descriptions column={2} bordered>
+            <Descriptions.Item label="Order Number" span={2}>
+              {selectedOrder.orderNumber}
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Distributor">
+              {selectedOrder.distributor.businessName || selectedOrder.distributor.username}
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Contact">
+              {selectedOrder.distributor.mobile}
+              {selectedOrder.distributor.email && ` | ${selectedOrder.distributor.email}`}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Status">
+              <Tag color={
+                selectedOrder.status === 'pending' ? 'orange' :
+                selectedOrder.status === 'approved' ? 'green' :
+                selectedOrder.status === 'rejected' ? 'red' :
+                selectedOrder.status === 'shipped' ? 'blue' : 'purple'
+              }>
+                {selectedOrder.status.toUpperCase()}
+              </Tag>
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Total Amount">
+              ₹{selectedOrder.totalAmount}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Payment Method">
+              {selectedOrder.paymentMethod === 'cash-on-delivery' ? 'Cash on Delivery' : 'Reward Payment'}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Created At">
+              {new Date(selectedOrder.createdAt).toLocaleString()}
+            </Descriptions.Item>
+
+            {selectedOrder.approvedBy && (
+              <Descriptions.Item label="Approved By">
+                {selectedOrder.approvedBy.username}
+              </Descriptions.Item>
+            )}
+
+            {selectedOrder.distributorNotes && (
+              <Descriptions.Item label="Distributor Notes" span={2}>
+                {selectedOrder.distributorNotes}
+              </Descriptions.Item>
+            )}
+
+            {selectedOrder.adminNotes && (
+              <Descriptions.Item label="Admin Notes" span={2}>
+                {selectedOrder.adminNotes}
+              </Descriptions.Item>
+            )}
+
+            <Descriptions.Item label="Order Items" span={2}>
+              <Table
+                size="small"
+                dataSource={selectedOrder.items}
+                pagination={false}
+                columns={[
+                  {
+                    title: 'Product',
+                    dataIndex: ['product', 'name'],
+                    key: 'product',
+                  },
+                  {
+                    title: 'Category',
+                    dataIndex: ['product', 'category'],
+                    key: 'category',
+                  },
+                  {
+                    title: 'Quantity',
+                    dataIndex: 'quantity',
+                    key: 'quantity',
+                  },
+                  {
+                    title: 'Price',
+                    dataIndex: 'price',
+                    key: 'price',
+                    render: (price) => `₹${price}`,
+                  },
+                  {
+                    title: 'Subtotal',
+                    key: 'subtotal',
+                    render: (_, record) => `₹${record.price * record.quantity}`,
+                  },
+                ]}
+              />
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      {/* Status Update Modal */}
+      <Modal
+        title={`Reject Order - ${selectedOrder?.orderNumber}`}
+        open={isStatusModalVisible}
+        onCancel={() => setIsStatusModalVisible(false)}
         footer={null}
       >
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          {selectedOrder?.status === 'approved' && (
-            <Form.Item
-              name="paymentMethod"
-              label="Payment Method"
-              rules={[{ required: true, message: 'Please select payment method' }]}
-            >
-              <Select placeholder="Select payment method">
-                <Option value="wallet">Wallet</Option>
-                <Option value="bank-transfer">Bank Transfer</Option>
-                <Option value="upi">UPI</Option>
-                <Option value="cash">Cash</Option>
-              </Select>
-            </Form.Item>
-          )}
-          
+        <Form form={statusForm} onFinish={handleStatusUpdate} layout="vertical">
           <Form.Item
-            name="companyMessage"
-            label="Message to Dealer"
-            rules={[{ required: true, message: 'Please add a message' }]}
+            name="adminNotes"
+            label="Rejection Reason"
+            rules={[{ required: true, message: 'Please provide a rejection reason' }]}
           >
-            <Input.TextArea placeholder="Enter message for dealer" />
+            <TextArea
+              rows={4}
+              placeholder="Please explain why this order is being rejected..."
+            />
           </Form.Item>
-          
+
+          <Form.Item name="status" hidden>
+            <Input />
+          </Form.Item>
+
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={updateOrderStatus.isLoading}
-            >
-              Submit
-            </Button>
+            <Space>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={updateStatusMutation.isLoading}
+                danger
+              >
+                Reject Order
+              </Button>
+              <Button onClick={() => setIsStatusModalVisible(false)}>
+                Cancel
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Modal>
-    </Card>
+    </div>
   );
-}
+};
 
-export default CompanyOrdersDashboard;
+export default AdminOrders;

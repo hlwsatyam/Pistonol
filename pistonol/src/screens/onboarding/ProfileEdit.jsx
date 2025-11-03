@@ -19,7 +19,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {color, themeColor} from '../../locale/Locale';
 import ThemeWithBg from '../../Skeleton/ThemeWithBg';
 import * as ImagePicker from 'react-native-image-picker';
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
 import api from 'axios';
 import {uploadToCloudinary} from '../../hooks/auth';
 
@@ -36,7 +36,7 @@ const ProfileEditScreen = ({navigation, route}) => {
   const [address, setAddress] = useState(user?.address || '');
   const [errors, setErrors] = useState({});
   const [isUploading, setIsUploading] = useState(false);
-  const queryClient = useQueryClient();
+  
 
   // Initialize with user's existing photo if available
   useEffect(() => {
@@ -51,7 +51,7 @@ const ProfileEditScreen = ({navigation, route}) => {
       return response.data;
     },
     onSuccess: async data => {
-      queryClient.invalidateQueries(['user']);
+      
       await AsyncStorage.setItem('user', JSON.stringify(data?.user));
       ToastAndroid.show(data.message || 'Profile Updated', ToastAndroid.SHORT);
     },

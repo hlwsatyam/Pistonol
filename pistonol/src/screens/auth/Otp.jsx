@@ -33,7 +33,7 @@ const OtpScreen = ({navigation, route}) => {
     setForwordId(text);
   };
 
-  const {mutate: resendOtp, isPending: isSendingOtp} = sendOtp();
+ 
   const {mutate: verifyOtpMutation} = verifyOtp();
  const [isVerifyingOtp, setIsLoading] = useState(false);
   const handleSubmit = async() => {

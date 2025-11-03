@@ -42,7 +42,7 @@ const AppRoutes = () => {
   const [collapsed, setCollapsed] = useState(false);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
 
-  console.log(user)
+
   useEffect(() => {
     checkAuth(); // refresh ke time auto call hoga
   }, []);

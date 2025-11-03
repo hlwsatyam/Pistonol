@@ -20,14 +20,7 @@ const AppHeader = ({ user }) => {
   };
 
   const menuItems = [
-    {
-      key: "1",
-      label: "Profile",
-    },
-    {
-      key: "2",
-      label: "Settings",
-    },
+   
     {
       type: "divider",
     },

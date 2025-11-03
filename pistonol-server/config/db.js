@@ -5,10 +5,10 @@ const User = require("../models/User"); // Import your user model
 const connectDB = async () => {
   try {
      await mongoose.connect(
-      "mongodb://myUser:myPassword123@168.231.102.215:27017/pistonol?authSource=admin"
+      "mongodb+srv://HeySatyam:20172522Satyam@cluster0.xqoozjj.mongodb.net/Pistonol?retryWrites=true&w=majority&appName=Cluster0"
     );
     console.log("✅ MongoDB connected");
-
+ 
     // Ensure company user exists
     const defaultCompanyUser = {
       username: "company123",

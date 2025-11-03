@@ -6,10 +6,11 @@ const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 const sendEmail = require("../service/emailService");
-const now = new Date();
-const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
-const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Month with leading zero
- 
+const moment = require("moment-timezone");
+
+const now = moment().tz("Asia/Kolkata"); // Set timezone to India
+const year = now.format("YY"); // Last 2 digits of year
+const month = now.format("MM"); // Month with leading zero
 
 
 
@@ -501,17 +502,15 @@ function generateRegistrationPDF(user, password, pdfPath) {
 
  
  
+ 
 
-
-
+ 
 
 
 exports.registerUser = async (req, res) => {
   try {
     const { mobile, role, password } = req.body;
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+ 
 
     // Check required fields
     if (!mobile || !role || !password) {
@@ -519,6 +518,7 @@ exports.registerUser = async (req, res) => {
         message: "Mobile, role and password are required",
       });
     }
+
 
     // Generate username based on role
     let username;
@@ -549,6 +549,7 @@ exports.registerUser = async (req, res) => {
       }
 
       username = `EMP-${year}${month}-${count.toString().padStart(4, "0")}`;
+     
     }
 
     // Check if user exists
@@ -648,15 +649,20 @@ exports.registerUser = async (req, res) => {
         </p>
 
         <div style="margin-top:25px; text-align:center;">
-          <a href="https://pistonollubricants.com" style="background:#2563eb; color:#fff; padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
+          <a href="https://pistonol.cloud/login" style="background:#2563eb; color:#fff; padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
             🌐 Visit Your Dashboard
+          </a>
+        </div>
+        <div style="margin-top:25px; text-align:center;">
+          <a href="https://play.google.com/store/apps/details?id=com.pistonol" style="background:#2563eb; color:#fff; padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
+            ✅ Or Download APK
           </a>
         </div>
       </div>
 
       <!-- Footer -->
       <div style="background:#f1f5f9; padding:20px; text-align:center; font-size:12px; color:#64748b;">
-        <p style="margin:0;">📞 +91-98765-43210 | ✉️ support@pistonollubricants.com</p>
+        <p style="margin:0;">📞 +91-98765-43210 | ✉️ pistonol@rediffmail.com</p>
         <p style="margin:5px 0 0;">© ${new Date().getFullYear()} PISTONOL LUBRICANT PVT LTD. All rights reserved.</p>
       </div>
     </div>
@@ -671,18 +677,13 @@ exports.registerUser = async (req, res) => {
   ],
 };
 
+ 
+
 
         await sendEmail(mailOptions);
       } catch (error) {
         console.error("Email sending error:", error);
-      } finally {
-        // Delete the temporary PDF file after sending email
-        setTimeout(() => {
-          fs.unlink(pdfPath, (err) => {
-            if (err) console.error("Error deleting PDF:", err);
-          });
-        }, 5000); // Delay deletion to ensure email is sent first
-      }
+      }  
     }
 
     res.status(201).json({

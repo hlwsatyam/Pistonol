@@ -8,6 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter.verify().then(s=>console.log("mail conn")).catch(e=>console.log(e))
 /**
  * @param {Object} mailOptions
  * @returns {Object}

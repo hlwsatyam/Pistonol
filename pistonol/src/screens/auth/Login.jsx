@@ -23,7 +23,7 @@ import {
   startDirectionTheme,
   themeColor,
 } from '../../locale/Locale';
-import {sendOtp} from '../../hooks/auth';
+ 
 
 const Login = ({navigation}) => {
   const [mobile, setMobile] = useState('');

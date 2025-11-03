@@ -27,6 +27,9 @@ import LeadDetailScreen from './src/screens/HomeForEmployee/LeadDetail';
 import LeadAnalytics from './src/screens/HomeForEmployee/LeadAnalytics';
 import AttendanceScreen from './src/screens/AttendanceScreen';
 import Leave from './src/screens/Leave';
+import Privacy from './src/screens/Policy/Privacy';
+import PistonolContactSupportScreen from './src/screens/Policy/ContactSupportScreen';
+import DistributorOrders from './src/navigation/CreateOrder';
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -56,7 +59,7 @@ const App = () => {
           <Stack.Screen name="LEAVE" component={Leave} />
           <Stack.Screen name="walletHistory" component={Histary} />
           <Stack.Screen name="TransferScreen" component={TransferScreen} />
-          <Stack.Screen
+          <Stack.Screen 
             name="NotificationScreen"
             component={NotificationScreen}
           />
@@ -74,12 +77,29 @@ const App = () => {
             name="ProductListingScreen"
             component={ProductListingScreen}
           />
-         
+          <Stack.Screen 
+            name="PrivacyPolicy" 
+            component={Privacy}
+            options={{ 
+              title: 'Privacy Policy',
+              headerBackTitle: 'Back' // For iOS
+            }}
+          />
+          <Stack.Screen 
+            name="Support" 
+            component={PistonolContactSupportScreen}
+            options={{ 
+              title: 'Support Policy',
+              headerBackTitle: 'Support'  
+            }}
+          />
+        
 
           {/* for User */}
           <Stack.Screen name="HomeForCustomer" component={HomeForCustomer} />
           <Stack.Screen name="HomeForEmployee" component={HomeForEmployee} />
            <Stack.Screen name="HomeForDistributor" component={TopBar} />
+           <Stack.Screen name="DistributorOrders" component={DistributorOrders} />
           <Stack.Screen name="LeadDetail" component={LeadDetailScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="LeadAnalytics" component={LeadAnalytics} />

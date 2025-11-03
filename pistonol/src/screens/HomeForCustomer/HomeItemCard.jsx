@@ -31,14 +31,14 @@ const HomeItemCard = ({setScanVisible, setScanTab}) => {
     },
     {
       id: 3,
-      navigateTo: 'HelpSupportScreen',
+      navigateTo: 'Support',
       title: 'Customer Support',
       icon: <Icon2 name="headset" size={30} color={color} />,
     },
     {
       id: 4,
       navigateTo: 'ProductListingScreen',
-      title: 'Find the Right Oil',
+      title: 'recommendation Product',
       icon: <Icon3 name="droplet" size={30} color={color} />,
     },
   ];
