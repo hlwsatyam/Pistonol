@@ -46,7 +46,7 @@ const AppHeader = ({ user }) => {
         <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
           <WalletOutlined className="text-gray-600" />
           <span className="font-medium text-gray-700">
-           ₹{user.wallet.toFixed(2)}
+           ₹{user?.wallet?.toFixed(2)}
           </span>
         </div>
 

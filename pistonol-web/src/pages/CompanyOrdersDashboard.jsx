@@ -239,7 +239,7 @@ const AdminOrders = () => {
             </Descriptions.Item>
             
             <Descriptions.Item label="Distributor">
-              {selectedOrder.distributor.businessName || selectedOrder.distributor.username}
+              {selectedOrder?.distributor?.businessName || selectedOrder?.distributor?.username}
             </Descriptions.Item>
             
             <Descriptions.Item label="Contact">
