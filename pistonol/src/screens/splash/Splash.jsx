@@ -70,6 +70,16 @@ if (user?.role === 'distributor') {
               index: 0,
               routes: [{name: 'HomeForDistributor'}],
             });}
+if (user?.role === 'dealer') {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'HomeForDealer'}],
+            });}
+if (user?.role === 'mechanic') {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'HomeForMechanic'}],
+            });}
 
 
 

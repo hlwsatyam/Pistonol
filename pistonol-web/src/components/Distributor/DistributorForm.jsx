@@ -25,7 +25,7 @@ import { useCreateUser, useUpdateUser, useUsers } from '../../utils/useUsers';
 const { Option } = Select;
 const { TextArea } = Input;
 
-const DistributorForm = ({ visible, onClose, editUserId }) => {
+const DistributorForm = ({  title="distributor" ,  visible, onClose, editUserId }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -33,7 +33,7 @@ const DistributorForm = ({ visible, onClose, editUserId }) => {
   const [businessType, setBusinessType] = useState('');
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
-  const { data: users } = useUsers();
+  const { data: users } = useUsers( title  );
 
   React.useEffect(() => {
     if (editUserId && users) {
@@ -157,13 +157,13 @@ const DistributorForm = ({ visible, onClose, editUserId }) => {
           id: editUserId, 
           userData 
         });
-        message.success('Distributor updated successfully!');
+        message.success(' updated successfully!');
       } else {
         await createUser.mutateAsync({
           ...userData,
           password: values.password
         });
-        message.success('Distributor created successfully!');
+        message.success(' created successfully!');
       }
       onClose();
     } catch (error) {
@@ -179,7 +179,7 @@ const DistributorForm = ({ visible, onClose, editUserId }) => {
 
   return (
     <Drawer
-      title={editUserId ? 'Edit Distributor' : 'Add Distributor'}
+      title={editUserId ? 'Edit  ' : 'Add  '}
       width={600}
       onClose={onClose}
       visible={visible}

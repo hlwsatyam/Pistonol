@@ -33,7 +33,7 @@ export default function ServicesInput({ formData, handleChange }) {
 
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.inputLabel}>Order Offered</Text>
+      <Text style={styles.inputLabel}>Order Details</Text>
       <ScrollView style={{ maxHeight: 200 }}>
         {servicesArray.map((item, index) => (
           <View key={index} style={styles.row}>
@@ -41,13 +41,13 @@ export default function ServicesInput({ formData, handleChange }) {
               style={[styles.leadInput, styles.keyInput]}
               value={item.key}
               onChangeText={text => handleLineChange(index, 'key', text)}
-              placeholder="Key"
+              placeholder="Product Name"
             />
             <TextInput
               style={[styles.leadInput, styles.valueInput]}
               value={item.value}
               onChangeText={text => handleLineChange(index, 'value', text)}
-              placeholder="Value"
+              placeholder="Count"
             />
             <TouchableOpacity onPress={() => handleRemove(index)} style={styles.removeBtn}>
               <Text style={{ color: 'red', fontSize: 18 }}>−</Text>
@@ -56,7 +56,7 @@ export default function ServicesInput({ formData, handleChange }) {
         ))}
       </ScrollView>
       <TouchableOpacity onPress={handleAdd} style={styles.addBtn}>
-        <Text style={{ color: 'green', fontSize: 18 }}>＋ Add Service</Text>
+        <Text style={{ color: 'blue', fontSize: 18 }}>＋ Add More</Text>
       </TouchableOpacity>
     </View>
   );
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
   inputLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
   leadInput: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 5 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
-  keyInput: { flex: 1, marginRight: 5 },
-  valueInput: { flex: 2, marginRight: 5 },
+  keyInput: { flex: 4, marginRight: 5 },
+  valueInput: { flex: 1, marginRight: 5 },
   removeBtn: { padding: 5 },
   addBtn: { marginTop: 5, alignItems: 'center' },
 });

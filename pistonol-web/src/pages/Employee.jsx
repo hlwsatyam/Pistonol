@@ -1,7 +1,7 @@
  
 import EmployeeForm from "../components/Employee/EmployeeForm";
 import EmployeeList from "../components/Employee/EmployeeList";
-
+ 
 function Employee() {
   const [visible, setVisible] = useState(false);
   const [editUserId, setEditUserId] = useState(null);
@@ -23,6 +23,17 @@ function Employee() {
         onClose={onClose}
         editUserId={editUserId}
       />
+
+
+
+
+<AdminTaskAssignment  />
+
+
+
+
+
+
     </Card>
   );
 }
@@ -66,7 +77,8 @@ import {
   CalendarOutlined,
   EnvironmentOutlined
 } from '@ant-design/icons';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast'; 
+import AdminTaskAssignment from "./TargetManagement";
  
  
 

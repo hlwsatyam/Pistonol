@@ -21,6 +21,10 @@ const transactionSchema = new mongoose.Schema({
     enum: ['transfer', 'scan', 'deposit'],
     required: true,
   },
+  description: {
+    type: String,
+    
+  },
   createdAt: {
     type: Date,
     default: Date.now,

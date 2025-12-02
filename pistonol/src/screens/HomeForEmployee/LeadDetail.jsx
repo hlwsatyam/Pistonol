@@ -181,28 +181,28 @@ const LeadDetailScreen = ({route, navigation}) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Add Feedback</Text>
+            <Text style={styles.sectionTitle}>Add Feedback & Suggesion</Text>
             <TextInput
               style={styles.feedbackInput}
               value={feedbackText}
               onChangeText={setFeedbackText}
               placeholder="Enter your feedback"
               multiline
-              editable={!addFeedbackMutation.isLoading}
+              editable={!addFeedbackMutation.isPending}
             />
             <LinearGradient
-              colors={themeColor}
+              colors={["red" , "red"  ]}
               start={startDirectionTheme}
               end={endDirectionTheme}
               style={styles.gradientButton}>
               <TouchableOpacity
                 style={styles.addButton}
                 onPress={handleAddFeedback}
-                disabled={addFeedbackMutation.isLoading || !feedbackText.trim()}>
+                disabled={addFeedbackMutation.isPending || !feedbackText.trim()}>
                 {addFeedbackMutation.isPending ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text style={styles.buttonText}>Add Feedback</Text>
+                  <Text style={styles.buttonText}>Submit</Text>
                 )}
               </TouchableOpacity>
             </LinearGradient>
@@ -253,7 +253,7 @@ const LeadDetailScreen = ({route, navigation}) => {
         <Modal visible={isEditModalVisible} transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Edit Feedback</Text>
+              <Text style={styles.modalTitle}>Edit Feedback </Text>
               <TextInput
                 style={styles.modalInput}
                 value={editFeedbackText}
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 1,
-    backgroundColor: themeColor[0],
+    backgroundColor: "blue",
   },
   backButton: {
     padding: 8,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 500,
     marginBottom: 12,
     color: '#333',
   },

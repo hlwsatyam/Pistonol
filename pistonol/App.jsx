@@ -30,6 +30,16 @@ import Leave from './src/screens/Leave';
 import Privacy from './src/screens/Policy/Privacy';
 import PistonolContactSupportScreen from './src/screens/Policy/ContactSupportScreen';
 import DistributorOrders from './src/navigation/CreateOrder';
+import EmployeeTargetView from './src/screens/HomeForEmployee/EmployeeTargetView';
+import FundTransferToCompany from './src/components/wallet/FundTransferToCompany';
+import History from './src/components/wallet/Histary';
+import TransactionHistory from './src/components/wallet/TransactionHistory';
+import UserTargetView from './src/components/wallet/UserTargetView';
+import OrderManagement from './src/components/OrderManagement';
+import MonthlySaleReport from './src/components/DMR';
+import StockReport from './src/components/StockReport';
+import TopBarForDealer from './src/navigation/TopBarForDealer';
+import TopBarForMechanic from './src/navigation/TopBarForMechanic';
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -98,11 +108,41 @@ const App = () => {
           {/* for User */}
           <Stack.Screen name="HomeForCustomer" component={HomeForCustomer} />
           <Stack.Screen name="HomeForEmployee" component={HomeForEmployee} />
+          <Stack.Screen name="ViewMyTarget" component={EmployeeTargetView} />
+          <Stack.Screen name="UserTargetView" component={UserTargetView} />
            <Stack.Screen name="HomeForDistributor" component={TopBar} />
+           <Stack.Screen name="HomeForDealer" component={TopBarForDealer} />
+           <Stack.Screen name="HomeForMechanic" component={TopBarForMechanic} />
+           <Stack.Screen name="OrderManagement" component={OrderManagement} />
            <Stack.Screen name="DistributorOrders" component={DistributorOrders} />
           <Stack.Screen name="LeadDetail" component={LeadDetailScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="LeadAnalytics" component={LeadAnalytics} />
+
+ 
+<Stack.Screen name="MonthlySaleReport" component={MonthlySaleReport} />
+<Stack.Screen name="StockReport" component={StockReport} />
+
+{/* trass to comp funcd */}
+
+ 
+
+<Stack.Screen 
+  name="TransferToCompany" 
+  component={FundTransferToCompany}
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen 
+  name="TransactionHistory" 
+  component={TransactionHistory}
+  options={{
+    headerShown: false,
+  }}
+/>
+
+
         </Stack.Navigator>
       </QueryClientProvider>
     </NavigationContainer>

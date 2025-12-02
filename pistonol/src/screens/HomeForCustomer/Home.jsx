@@ -30,7 +30,7 @@ const CustomerHome = ({setScanVisible, setScanTab}) => {
   return (
     <ThemeWithBg>
       <CustomerHeader />
-      <ScrollView style={{flex: 1, marginBottom: 50}}>
+      <ScrollView style={{flex: 1,  marginBottom:60}}>
         <MarqueText role={user?.role} />
         <PrizeCard
           user={user}

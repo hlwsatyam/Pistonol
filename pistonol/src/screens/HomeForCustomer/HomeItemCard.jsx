@@ -29,18 +29,21 @@ const HomeItemCard = ({setScanVisible, setScanTab}) => {
       navigateTo: 'Terms',
       icon: <Icon name="description" size={30} color={color} />,
     },
-    {
-      id: 3,
-      navigateTo: 'Support',
-      title: 'Customer Support',
-      icon: <Icon2 name="headset" size={30} color={color} />,
-    },
+ 
     {
       id: 4,
       navigateTo: 'ProductListingScreen',
-      title: 'recommendation Product',
+      title: 'Suggest ',
       icon: <Icon3 name="droplet" size={30} color={color} />,
     },
+   {
+      id: 3,
+      navigateTo: 'Support',
+      title: 'Support',
+      icon: <Icon2 name="headset" size={30} color={color} />,
+    },
+
+
   ];
 
   const rightCard = {

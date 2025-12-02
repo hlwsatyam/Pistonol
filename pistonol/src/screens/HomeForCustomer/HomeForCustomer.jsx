@@ -18,6 +18,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Camera, CameraType} from 'react-native-camera-kit';
 import CustomerHome from './Home';
 import LinearGradient from 'react-native-linear-gradient';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import {
   BackgroundTheme,
   color,
@@ -252,7 +254,7 @@ export default function App() {
   const [scanVisible, setScanVisible] = useState(false);
   const [scannedCode, setScannedCode] = useState('');
   const [scanTab, setScanTab] = useState('scan');
-
+  const insets = useSafeAreaInsets();
   const _renderIcon = (routeName, selectedTab) => {
     let icon = '';
     switch (routeName) {
@@ -310,7 +312,13 @@ console.log(code)
       <CurvedBottomBar.Navigator
         screenOptions={{headerShown: false}}
         type="UP"
-        style={styles.bottomBar}
+        // style={styles.bottomBar}
+
+   style={[
+        styles.bottomBar,
+        { paddingBottom: insets.bottom  } // ⬅ Safe area + extra gap
+      ]}
+
         shadowStyle={styles.shawdow}
         height={60}
         circleWidth={55}

@@ -28,8 +28,8 @@ import { useDeleteUser, useUsers } from "../../utils/useUsers";
 
 const { Text, Title } = Typography;
 
-const DistributorList = ({ setEditUserId, showDrawer }) => {
-  const { data: users, isLoading, isError, error, refetch } = useUsers("distributor");
+const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) => {
+  const { data: users, isLoading, isError, error, refetch } = useUsers( title?title:  "distributor");
   console.log(users)
   const deleteUserMutation = useDeleteUser();
   const [selectedUser, setSelectedUser] = useState(null);
@@ -409,7 +409,7 @@ const DistributorList = ({ setEditUserId, showDrawer }) => {
             showDrawer();
           }}
         >
-          Add Distributor
+          Add  {title }
         </Button>
         <Button
           icon={<SyncOutlined />}

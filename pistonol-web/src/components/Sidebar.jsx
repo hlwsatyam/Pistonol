@@ -16,6 +16,8 @@ const AppSidebar = ({ permissions ,  collapsed, setCollapsed   }) => {
     permissions.includes("employee") && { key: "/employee", icon: <AiOutlineTeam />, label: "Employee" },
     permissions.includes("cus") && { key: "/cus", icon: <AiOutlineTeam />, label: "Customer" },
     permissions.includes("distributor") && { key: "/distributor", icon: <AiOutlineTeam />, label: "Distributor" },
+    permissions.includes("dealer") && { key: "/dealer", icon: <AiOutlineTeam />, label: "Dealer" },
+    permissions.includes("mechanic") && { key: "/mechanic", icon: <AiOutlineTeam />, label: "Mechanic" },
     permissions.includes("CompanyOrdersDashboard") && { key: "/CompanyOrdersDashboard", icon: <AiOutlineTeam />, label: "Company Orders Dashboard" },
     permissions.includes("DealerOrderForm") && { key: "/DealerOrderForm", icon: <AiOutlineTeam />, label: "Create Order" },
     permissions.includes("wallet") && { key: "/wallet", icon: <WalletOutlined />, label: "Wallet" },

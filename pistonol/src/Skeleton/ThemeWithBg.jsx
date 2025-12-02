@@ -5,18 +5,20 @@ import {BackgroundTheme} from '../locale/Locale'; // Make sure this path is corr
 
 const ThemeWithBg = ({children}) => {
   return (
-    <ImageBackground source={BackgroundTheme} style={styles.background}>
+    // <ImageBackground source={BackgroundTheme} style={styles.background}>
       <SafeAreaView style={styles.safeArea}>{children}</SafeAreaView>
-    </ImageBackground>
+    // </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+
     resizeMode: 'cover',
   },
   safeArea: {
+    backgroundColor:"white",
     flex: 1,
   },
 });

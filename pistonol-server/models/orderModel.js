@@ -6,10 +6,18 @@ const orderSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
-  distributor: {
+  // Changed from 'distributor' to generic 'user'
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  // Add user type to identify what type of user placed the order
+  userType: {
+    type: String,
+    enum: ['distributor', 'dealer', 'mechanic', 'company-employee'],
+    required: true,
+    default: 'distributor'
   },
   items: [{
     product: {
@@ -45,7 +53,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   },
-  distributorNotes: {
+  userNotes: {  // Changed from distributorNotes to userNotes
     type: String,
     maxlength: 500
   },
@@ -81,5 +89,10 @@ orderSchema.pre('findOneAndUpdate', function(next) {
   this.set({ updatedAt: Date.now() });
   next();
 });
+
+// Index for better query performance
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ userType: 1, status: 1 });
+orderSchema.index({ orderNumber: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);

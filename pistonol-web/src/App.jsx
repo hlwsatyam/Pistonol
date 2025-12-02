@@ -28,6 +28,8 @@ import ForgotPassword from "./pages/PassForgot";
 import ResetPassword from "./pages/ResetPassword";
 import LeadManagement from "./pages/LeadManagement";
 import Store from "./pages/Store";
+import Dealer from "./pages/Dealer";
+import Mechanics from "./pages/Mechanics";
 
 const { Content } = Layout;
 
@@ -109,6 +111,12 @@ const AppRoutes = () => {
 
               {permissions.includes("distributor") && (
                 <Route path="/distributor" element={<Distributor />} />
+              )}
+              {permissions.includes("dealer") && (
+                <Route path="/dealer" element={<Dealer />} />
+              )}
+              {permissions.includes("mechanic") && (
+                <Route path="/mechanic" element={<Mechanics />} />
               )}
               {permissions.includes("product") && (
                 <Route path="/product" element={<Product />} />

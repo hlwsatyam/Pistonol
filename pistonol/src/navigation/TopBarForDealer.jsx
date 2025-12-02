@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Button,
   ScrollView,
+  Text,
   TouchableOpacity,
   View,
  
@@ -17,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DMRDashboard from '../components/DMRDashboard';
 import PromotionCardSlider from '../screens/HomeForCustomer/PromotionCard';
 
-const SimpleDistributorDashboard = () => {
+const TopBarForDealer = () => {
  
   const [user, setUser] = useState(null);
  useEffect(() => {
@@ -45,17 +46,17 @@ const navigation=useNavigation()
 <QRCodeScannerButton/>
 <ScrollView>
 
-        <MarqueeText   color={'#007AFF'} role="distributor" />
+        <MarqueeText   color={'#007AFF'} role="dealer" />
       
-<PromotionCardSlider role="distributor"/>
-  <WalletCard/>
+<PromotionCardSlider role="dealer"/>
+  <WalletCard   reciever={"distributor"  }    />
 
-<DMRDashboard/>
-
-
+{/* <DMRDashboard/> */}
 
 
-<View style={{margin:10}}>
+
+
+{/* <View style={{margin:10}}>
 <Button
   title="View MY Target"
   
@@ -63,7 +64,7 @@ const navigation=useNavigation()
 
 navigation.navigate('UserTargetView', {
   user: user,
-  userType: 'distributor'
+  userType: 'dealer'
 });
 
   }}
@@ -78,14 +79,69 @@ navigation.navigate('UserTargetView', {
 
 navigation.navigate('OrderManagement', {
   user: user,
-  userType: 'distributor'
+  userType: 'dealer'
 });
 
   }}
   color="#007AFF"
 />
 
+</View> */}
+
+
+
+
+
+
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("UserTargetView", {
+        user: user,
+        userType: "dealer",
+      });
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      View My Target
+    </Text>
+  </TouchableOpacity>
 </View>
+
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("OrderManagement", {
+        user: user,
+        userType: "dealer",
+      });
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      Create Order
+    </Text>
+  </TouchableOpacity>
+</View>
+
+
+
+
+
+
+
+
 
 </ScrollView>
 
@@ -104,4 +160,4 @@ navigation.navigate('OrderManagement', {
   );
 };
 
-export default SimpleDistributorDashboard;
+export default TopBarForDealer;

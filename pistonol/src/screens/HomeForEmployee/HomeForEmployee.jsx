@@ -58,20 +58,6 @@ const LeadForm = ({visible, onClose, onSubmit}) => {
     try {
       setIsSubmitting(true);
 
-
-
-
-
-const submitData = {
-  ...formData,
-  servicesOffered: formData.servicesOffered
-    .split('\n')
-    .filter(line => line.includes(':'))
-    .map(line => {
-      const [key, value] = line.split(':');
-      return { key: key.trim(), value: value.trim() };
-    }),
-};
  
 
 
@@ -95,10 +81,10 @@ const submitData = {
         <ImageBackground source={BackgroundTheme} style={styles.modalBg}>
           <View style={styles.leadModalContainer}>
             <ScrollView contentContainerStyle={styles.leadFormScroll}>
-              <Text style={styles.leadFormTitle}>Create New Lead</Text>
+              <Text style={styles.leadFormTitle}>VISITOR LOG BOOK (VLB)</Text>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Garage Name</Text>
+                <Text style={styles.inputLabel}>Garage/Dealer Name</Text>
                 <TextInput
                   style={styles.leadInput}
                   value={formData.garageName}
@@ -109,24 +95,24 @@ const submitData = {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Business Card Number</Text>
+                <Text style={styles.inputLabel}>ID/PAN Number</Text>
                 <TextInput
                   style={styles.leadInput}
                   value={formData.businessCardNumber}
                   onChangeText={text => handleChange('businessCardNumber', text)}
-                  placeholder="Enter card number"
+                  placeholder="ID/PAN number"
                   placeholderTextColor="#888"
                   keyboardType="numeric"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Contact Person Name</Text>
+                <Text style={styles.inputLabel}>Owners Name</Text>
                 <TextInput
                   style={styles.leadInput}
                   value={formData.contactName}
                   onChangeText={text => handleChange('contactName', text)}
-                  placeholder="Enter contact name"
+                  placeholder="Owners name"
                   placeholderTextColor="#888"
                 />
               </View>
@@ -208,19 +194,19 @@ const submitData = {
 
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>comment</Text>
+                <Text style={styles.inputLabel}>Customer Feedback</Text>
                 <TextInput
                   style={[styles.leadInput, {height: 80, textAlignVertical: 'top'}]}
                   value={formData.comment}
                   onChangeText={text => handleChange('comment', text)}
-                  placeholder="comment"
+                  placeholder="Feedback"
                   placeholderTextColor="#888"
                   multiline
                 />
               </View>
 
               <LinearGradient
-                colors={themeColor}
+                colors={["blue" , "blue"  ]}
                 start={startDirectionTheme}
                 end={endDirectionTheme}
                 style={styles.submitGradient}>
@@ -231,7 +217,7 @@ const submitData = {
                   {isSubmitting ? (
                     <ActivityIndicator color="white" />
                   ) : (
-                    <Text style={styles.submitText}>Create Lead</Text>
+                    <Text style={styles.submitText}>Submit</Text>
                   )}
                 </TouchableOpacity>
               </LinearGradient>
@@ -246,6 +232,10 @@ const submitData = {
     </Modal>
   );
 };
+
+
+
+
 
 export default function App({navigation}) {
   const [leadModalVisible, setLeadModalVisible] = useState(false);
@@ -285,14 +275,6 @@ export default function App({navigation}) {
     },
   });
 
-  // const {data: leads, isLoading} = useQuery({
-  //   queryKey: ['leads', user?._id],
-  //   queryFn: async () => {
-  //     const response = await axios.get(`/leads?userId=${user._id}`);
-  //     return response.data;
-  //   },
-  //   enabled: !!user?._id,
-  // });
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = '';
@@ -371,6 +353,16 @@ export default function App({navigation}) {
   );
 }
 
+
+
+
+
+
+
+
+
+
+
 const styles = StyleSheet.create({
 
 
@@ -408,9 +400,9 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   leadFormTitle: {
-    fontSize: 22,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: 'red',
     marginBottom: 20,
     textAlign: 'center',
   },

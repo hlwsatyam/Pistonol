@@ -23,18 +23,19 @@ function Distributor() {
   };
 
   return (
-    <Card title="Distributor Management" bordered={false}>
+    <Card title="dealer Management" bordered={false}>
 
-      <DistributorList setEditUserId={setEditUserId} showDrawer={showDrawer} />
-      <DistributorForm
+      <DistributorList  title={"dealer"} setEditUserId={setEditUserId} showDrawer={showDrawer} />
+      <DistributorForm 
+       title={"dealer"} 
         visible={visible}
         onClose={onClose}
         editUserId={editUserId}
       />
-<AdminDMRReports/>
+{/* <AdminDMRReports  title={"dealer"}  /> */}
 
-      <AdminTaskAssignmentGlobal EmployeType ={"distributor"}  />
-      <AdminOrderManagementGlobal />
+      <AdminTaskAssignmentGlobal EmployeType ={"dealer"}  />
+      <AdminOrderManagementGlobal  userType="dealer" title="Dealer"  />
     </Card>
   );
 }

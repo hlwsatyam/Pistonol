@@ -1,17 +1,16 @@
 const express = require("express");
 const router = express.Router();
- 
- 
-
-
 const Order = require('../models/orderModel.js');
 const Product = require('../models/Product.js');
 const User = require('../models/User.js');
 
+// Create order for any user type
 const createOrder = async (req, res) => {
   try {
-    const { items, paymentMethod,distributorId, distributorNotes } = req.body;
-   console.log(req.body)
+    const { items, paymentMethod, userId, userType = 'distributor', userNotes } = req.body;
+   
+    console.log(req.body);
+    
     // Validate items
     if (!items || items.length === 0) {
       return res.status(400).json({
@@ -47,15 +46,13 @@ const createOrder = async (req, res) => {
         product: product._id,
         quantity: item.quantity,
         price: product.price,
-           
-           
       });
     }
 
     // Check wallet balance if payment method is reward-payment
     if (paymentMethod === 'reward-payment') {
-      const distributor = await User.findById(distributorId);
-      if (distributor.wallet < totalAmount) {
+      const user = await User.findById(userId);
+      if (user.wallet < totalAmount) {
         return res.status(400).json({
           success: false,
           message: 'Insufficient wallet balance'
@@ -65,19 +62,20 @@ const createOrder = async (req, res) => {
 
     // Create order
     const order = new Order({
-      distributor: distributorId,
+      user: userId,
+      userType: userType,
       items: orderItems,
-      orderNumber:`ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+      orderNumber: `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
       totalAmount,
       paymentMethod,
-      distributorNotes,
+      userNotes,
       status: 'pending'
     });
 
     await order.save();
 
     // Populate order details for response
-    await order.populate('distributor', 'username businessName');
+    await order.populate('user', 'username name businessName');
     await order.populate('items.product', 'name category images');
 
     res.status(201).json({
@@ -96,15 +94,18 @@ const createOrder = async (req, res) => {
   }
 };
 
-// @desc    Get all orders for distributor
-// @route   GET /api/orders/distributor
-// @access  Private (Distributor)
-const getDistributorOrders = async (req, res) => {
+// Get orders for any user type
+const getUserOrders = async (req, res) => {
   try {
-   
-    const { page = 1,distributorId, limit = 100, status } = req.query;
+    const { page = 1, userId, userType, limit = 100, status } = req.query;
 
-    const query = { distributor: distributorId };
+    const query = { user: userId };
+    
+    // Add userType filter if provided
+    if (userType) {
+      query.userType = userType;
+    }
+    
     if (status) query.status = status;
 
     const orders = await Order.find(query)
@@ -125,7 +126,7 @@ const getDistributorOrders = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get distributor orders error:', error);
+    console.error('Get user orders error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -134,21 +135,24 @@ const getDistributorOrders = async (req, res) => {
   }
 };
 
-// @desc    Get all orders for admin
-// @route   GET /api/orders/admin
-// @access  Private (Admin)
+// Get all orders for admin (with user type filtering)
 const getAdminOrders = async (req, res) => {
   try {
-  
-
-    const { page = 1, limit = 10, status, distributor } = req.query;
+    const { page = 1, limit = 10, status, userType, userId } = req.query;
 
     const query = {};
+    
+    // Filter by status
     if (status) query.status = status;
-    if (distributor) query.distributor = distributor;
+    
+    // Filter by user type
+    if (userType) query.userType = userType;
+    
+    // Filter by specific user
+    if (userId) query.user = userId;
 
     const orders = await Order.find(query)
-      .populate('distributor', 'username businessName mobile email')
+      .populate('user', 'username name businessName mobile email role')
       .populate('items.product', 'name category images price')
       .populate('approvedBy', 'username')
       .sort({ createdAt: -1 })
@@ -175,15 +179,10 @@ const getAdminOrders = async (req, res) => {
   }
 };
 
-// @desc    Update order status (Admin)
-// @route   PUT /api/orders/:id/status
-// @access  Private (Admin)
+// Update order status (Admin)
 const updateOrderStatus = async (req, res) => {
   try {
-  
-
-    const { status,orderId, adminNotes } = req.body;
-    
+    const { status, orderId, adminNotes } = req.body;
 
     const order = await Order.findById(orderId);
     if (!order) {
@@ -198,12 +197,11 @@ const updateOrderStatus = async (req, res) => {
 
     // Handle status-specific updates
     if (status === 'approved') {
-     
       updateData.approvedAt = new Date();
       
       // If payment is reward-payment, deduct from wallet
       if (order.paymentMethod === 'reward-payment') {
-        await User.findByIdAndUpdate(order.distributor, {
+        await User.findByIdAndUpdate(order.user, {
           $inc: { wallet: -order.totalAmount }
         });
       }
@@ -227,7 +225,7 @@ const updateOrderStatus = async (req, res) => {
       orderId,
       updateData,
       { new: true, runValidators: true }
-    ).populate('distributor', 'username businessName')
+    ).populate('user', 'username name businessName')
      .populate('items.product', 'name category images price')
      .populate('approvedBy', 'username');
 
@@ -247,13 +245,11 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// @desc    Get single order
-// @route   GET /api/orders/:id
-// @access  Private
+// Get single order
 const getOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate('distributor', 'username businessName mobile email address')
+      .populate('user', 'username name businessName mobile email address role')
       .populate('items.product', 'name description category images price')
       .populate('approvedBy', 'username');
 
@@ -263,8 +259,6 @@ const getOrder = async (req, res) => {
         message: 'Order not found'
       });
     }
-
- 
 
     res.json({
       success: true,
@@ -281,32 +275,50 @@ const getOrder = async (req, res) => {
   }
 };
 
-
-
-
-
- router.post('/',   createOrder);
-router.get('/distributor',  getDistributorOrders);
-router.get('/admin',  getAdminOrders);
-router.get('/:id', getOrder);
-router.put('/:id/status',  updateOrderStatus);
-
-
-
-
-
-
-
-
-
-
-router.get('/distributor/simple-dashboard',   async (req, res) => {
- 
-
-
-
+// Delete order (Only for pending orders)
+const deleteOrder = async (req, res) => {
   try {
-    const distributorId = req.query.id;
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    // Only allow deletion of pending orders
+    if (order.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only pending orders can be deleted'
+      });
+    }
+
+    await Order.findByIdAndDelete(orderId);
+
+    res.json({
+      success: true,
+      message: 'Order deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// Get user dashboard data
+const getUserDashboard = async (req, res) => {
+  try {
+    const { userId, userType } = req.query;
+    
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
@@ -316,11 +328,11 @@ router.get('/distributor/simple-dashboard',   async (req, res) => {
     const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
 
     // Get total orders count
-    const totalOrders = await Order.countDocuments({ distributor: distributorId });
+    const totalOrders = await Order.countDocuments({ user: userId });
 
     // Get current month orders
     const currentMonthOrders = await Order.find({
-      distributor: distributorId,
+      user: userId,
       createdAt: { $gte: startOfMonth, $lte: endOfMonth }
     });
 
@@ -336,7 +348,7 @@ router.get('/distributor/simple-dashboard',   async (req, res) => {
     };
 
     // Get recent orders (last 5)
-    const recentOrders = await Order.find({ distributor: distributorId })
+    const recentOrders = await Order.find({ user: userId })
       .populate('items.product', 'name price')
       .sort({ createdAt: -1 })
       .limit(5)
@@ -344,7 +356,7 @@ router.get('/distributor/simple-dashboard',   async (req, res) => {
       .lean();
 
     // Get wallet balance
-    const distributor = await User.findById(distributorId).select('wallet');
+    const user = await User.findById(userId).select('wallet');
 
     // Simple status distribution for chart
     const statusDistribution = [
@@ -358,11 +370,12 @@ router.get('/distributor/simple-dashboard',   async (req, res) => {
       data: {
         overview: {
           totalOrders,
-          walletBalance: distributor.wallet,
+          walletBalance: user.wallet,
           monthlyOrders: monthlyStats.total,
           monthlyRevenue: monthlyStats.revenue,
           pendingOrders: monthlyStats.pending,
-          deliveredOrders: monthlyStats.delivered
+          deliveredOrders: monthlyStats.delivered,
+          userType: userType
         },
         recentOrders,
         statusDistribution
@@ -377,23 +390,15 @@ router.get('/distributor/simple-dashboard',   async (req, res) => {
       error: error.message
     });
   }
+};
 
-
-
-
-
-
-
-
-
-
-
-});
-
-
-
-
-
-
+// Routes
+router.post('/', createOrder);
+router.get('/user', getUserOrders); // Changed from /distributor to /user
+router.get('/admin', getAdminOrders);
+router.get('/:id', getOrder);
+router.put('/status', updateOrderStatus); // Changed to PUT /status with body
+router.delete('/:orderId', deleteOrder);
+router.get('/dashboard/user', getUserDashboard); // Changed from /distributor/simple-dashboard
 
 module.exports = router;

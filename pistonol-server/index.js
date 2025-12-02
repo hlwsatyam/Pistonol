@@ -96,18 +96,21 @@ const leaveRoutess = require('./routes/admin/leave.js');
 
 
 app.use('/api/admin/attendance', attendanceRoutess);
-app.use('/api/admin/leaves', leaveRoutess);
+app.use('/api/admin/leaves', leaveRoutess); 
 
+app.get('/', (req, res) => res.send("dgdfgdfgd"));
 
-
-
+const dmrRoutes = require('./routes/dmr');
+app.use('/api/dmr', dmrRoutes);
 
 app.use("/api/analytics", require("./routes/analyticsRoutes.js"));
 app.use("/api/wallet", require("./routes/walletRoutes.js"));
 app.use("/api/products", require("./routes/productRoutes.js"));
 app.use("/api/marquees" , require("./routes/marquee.js"));
 app.use("/api/banners" , require("./routes/banner.js"));
-app.use("/api/orders" , require("./routes/orders.js"));
 
+app.use("/api/targets" , require("./routes/targets.js"));
+app.use("/api/transactions" , require("./routes/transfer.js"));
+app.use("/api/orders" , require("./routes/orders.js"));
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

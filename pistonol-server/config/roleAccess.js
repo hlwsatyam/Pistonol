@@ -7,6 +7,8 @@ const rolePermissions = {
     "marquee",
     "banner","store",
     "distributor",
+    "dealer",
+    "mechanic",
     "product",
     "cus",
     "CompanyOrdersDashboard",

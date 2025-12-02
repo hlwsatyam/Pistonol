@@ -12,8 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   mobile: {
     type: String,
-
-    match: [/^[0-9]{10}$/, "Please add a valid 10 digit mobile number"],
+ 
   },
   role: {
     type: String,
