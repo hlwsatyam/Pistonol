@@ -217,7 +217,7 @@ import {Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ThemeWithBg from '../../Skeleton/ThemeWithBg';
 import {
-  Logo,
+  Logo,tick
 } from '../../locale/Locale';
 
 const Login = ({navigation}) => {
@@ -282,7 +282,7 @@ const Login = ({navigation}) => {
            
 
 
-<View style={styles.tickContainer}>
+{/* <View style={styles.tickContainer}>
   <Text style={{
     fontSize: 85,
     color: '#FF0000',
@@ -293,7 +293,17 @@ const Login = ({navigation}) => {
     elevation: 20,
     lineHeight: 85,
   }}>✓</Text>
-</View>
+</View> */}
+
+ 
+                <Image source={tick} style={styles.logo1} resizeMode="contain" />
+          
+
+
+
+
+
+
 
 
 
@@ -468,8 +478,7 @@ const styles = StyleSheet.create({
   topSection: {
     flex: 1,
     paddingHorizontal: 25,
-    paddingTop: 60,
-    paddingBottom: 20,
+   
   },
   whiteCard: {
     backgroundColor: '#fff',
@@ -492,11 +501,15 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 2,
   },
   logo: {
     width: 200,
     height: 200,
+  },
+  logo1: {
+    width: 60,
+    height: 60,
   },
   tickContainer: {
     alignItems: 'center',
@@ -519,7 +532,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 800,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 50,
+    marginTop: 12,
     color: '#333',
   },
   welcomeSubtitle: {

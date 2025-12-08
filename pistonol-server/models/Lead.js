@@ -18,11 +18,19 @@ const leadSchema = new mongoose.Schema({
   address: String,
   state: String,
   city: String,
+  proofImageUrl: String,
   pincode: String,
   servicesOffered: String,
   status: { type: String, default: 'New' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   feedbacks: [feedbackSchema],
+
+  currentLocation: {
+      latitude: Number,
+      longitude: Number
+    },
+
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

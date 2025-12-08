@@ -29,7 +29,8 @@ const UserTargetView = () => {
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const [achievedAmount, setAchievedAmount] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
+ 
+const [timeoutId, setTimeoutId] = useState(null);
   function getCurrentMonth() {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -39,26 +40,26 @@ const UserTargetView = () => {
   const userConfig = {
     'company-employee': {
       title: 'Employee Target & Achievement',
-      gradientColors: ['#4F46E5', '#7C3AED'],
-      iconColor: '#4F46E5',
+         gradientColors: ['blue', 'blue'],
+    iconColor: 'blue',
       displayName: 'Employee'
     },
     'distributor': {
       title: 'Distributor Target & Achievement',
-      gradientColors: ['#DC2626', '#EA580C'],
-      iconColor: '#DC2626',
+      gradientColors: ['blue', 'blue'],
+     iconColor: 'blue',
       displayName: 'Distributor'
     },
     'dealer': {
       title: 'Dealer Target & Achievement',
-      gradientColors: ['#059669', '#0D9488'],
-      iconColor: '#059669',
+      gradientColors: ['blue', 'blue'],
+      iconColor: 'blue',
       displayName: 'Dealer'
     },
     'mechanic': {
       title: 'Mechanic Target & Achievement',
-      gradientColors: ['#7C3AED', '#A855F7'],
-      iconColor: '#7C3AED',
+      gradientColors: ['blue', 'blue'],
+      iconColor: 'blue',
       displayName: 'Mechanic'
     }
   };
@@ -221,13 +222,36 @@ const UserTargetView = () => {
             <Icon name="calendar-today" size={20} color={config.iconColor} />
             <Text style={[styles.monthLabel, { color: config.iconColor }]}>Select Month</Text>
           </View>
-          <TextInput
+          {/* <TextInput
             value={selectedMonth}
             onChangeText={setSelectedMonth}
             placeholder="YYYY-MM"
             placeholderTextColor="#9CA3AF"
             style={styles.monthInput}
-          />
+          /> */}
+
+
+
+
+<TextInput
+  defaultValue={selectedMonth}
+  onChangeText={(text) => {
+    if (timeoutId) clearTimeout(timeoutId);
+
+    const newTimeout = setTimeout(() => {
+      setSelectedMonth(text);
+    }, 1000);
+
+    setTimeoutId(newTimeout);
+  }}
+  placeholder="YYYY-MM"
+  placeholderTextColor="#9CA3AF"
+  style={styles.monthInput}
+/>
+
+
+
+
         </View>
 
         {/* Target Display */}
@@ -239,8 +263,8 @@ const UserTargetView = () => {
                 <Text style={[styles.progressTitle, { color: config.iconColor }]}>
                   Monthly Progress
                 </Text>
-                <View style={[styles.progressPercentage, { backgroundColor: `${config.iconColor}20` }]}>
-                  <Text style={[styles.progressPercentageText, { color: config.iconColor }]}>
+                <View style={[styles.progressPercentage, { backgroundColor: `#4c8a48` }]}>
+                  <Text style={[styles.progressPercentageText, { color: "white" }]}>
                     {progress.toFixed(1)}%
                   </Text>
                 </View>
@@ -254,7 +278,7 @@ const UserTargetView = () => {
                       styles.progressBarFill,
                       { 
                         width: `${Math.min(progress, 100)}%`,
-                        backgroundColor: config.iconColor
+                        backgroundColor: "green"
                       }
                     ]}
                   />
@@ -272,7 +296,7 @@ const UserTargetView = () => {
                 </View>
                 
                 <View style={styles.statItem}>
-                  <Icon name="check-circle" size={24} color="#10B981" />
+                  <Icon name="check-circle" size={24} color="green" />
                   <Text style={styles.statLabel}>Achieved</Text>
                   <Text style={[styles.statValue, styles.achievedText]}>
                     ₹{(currentTarget.achievedAmount / 100000).toFixed(1)}L
@@ -364,7 +388,7 @@ const UserTargetView = () => {
             
             <TouchableOpacity
               onPress={handleUpdateSales}
-              disabled={updateAchievedMutation.isLoading || !achievedAmount}
+              disabled={updateAchievedMutation.isPending || !achievedAmount}
               style={[
                 styles.updateButton,
                 { backgroundColor: config.iconColor },
@@ -638,7 +662,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   achievedText: {
-    color: '#10B981',
+    color: 'green',
   },
   remainingText: {
     color: '#EF4444',

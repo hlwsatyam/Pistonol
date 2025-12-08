@@ -92,7 +92,7 @@ const App = () => {
             component={Privacy}
             options={{ 
               title: 'Privacy Policy',
-              headerBackTitle: 'Back' // For iOS
+              headerBackTitle: 'Back'  
             }}
           />
           <Stack.Screen 
@@ -104,8 +104,7 @@ const App = () => {
             }}
           />
         
-
-          {/* for User */}
+ 
           <Stack.Screen name="HomeForCustomer" component={HomeForCustomer} />
           <Stack.Screen name="HomeForEmployee" component={HomeForEmployee} />
           <Stack.Screen name="ViewMyTarget" component={EmployeeTargetView} />
@@ -118,15 +117,11 @@ const App = () => {
           <Stack.Screen name="LeadDetail" component={LeadDetailScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="LeadAnalytics" component={LeadAnalytics} />
-
  
 <Stack.Screen name="MonthlySaleReport" component={MonthlySaleReport} />
 <Stack.Screen name="StockReport" component={StockReport} />
-
-{/* trass to comp funcd */}
-
  
-
+ 
 <Stack.Screen 
   name="TransferToCompany" 
   component={FundTransferToCompany}

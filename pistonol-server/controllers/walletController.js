@@ -6,7 +6,7 @@ const Transaction = require("../models/transaction");
 exports.transferFunds = async (req, res) => {
   try {
     const { senderId, receiverUsername, amount } = req.body;
-
+console.log(req.body)
     // Validate input
     if (!senderId || !receiverUsername || !amount) {
       return res.status(400).json({ message: "All fields are required" });
@@ -21,7 +21,7 @@ exports.transferFunds = async (req, res) => {
      
     const receiver = await User.findOne({
       username: receiverUsername,
-      role: sender?.role === "customer" ? "mechanic" : "",
+      // role: sender?.role === "customer" ? "mechanic" : "",
     });
 
     if (!sender) {

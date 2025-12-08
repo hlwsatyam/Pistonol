@@ -15,7 +15,7 @@ import WalletCard from '../components/wallet/WalletCard';
 import QRCodeScannerButton from '../components/wallet/QRCodeScannerButton';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import DMRDashboard from '../components/DMRDashboard';
+ 
 import PromotionCardSlider from '../screens/HomeForCustomer/PromotionCard';
 
 const TopBarForDealer = () => {
@@ -48,50 +48,11 @@ const navigation=useNavigation()
 
         <MarqueeText   color={'#007AFF'} role="dealer" />
       
-<PromotionCardSlider role="dealer"/>
-  <WalletCard   reciever={"distributor"  }    />
+     <PromotionCardSlider role="dealer"/>
+     <WalletCard   reciever={"distributor"  }    />
 
-{/* <DMRDashboard/> */}
-
-
-
-
-{/* <View style={{margin:10}}>
-<Button
-  title="View MY Target"
   
-  onPress={()=> {
-
-navigation.navigate('UserTargetView', {
-  user: user,
-  userType: 'dealer'
-});
-
-  }}
-  color="#007AFF"
-/>
-</View>
-<View style={{margin:10}}>
-
-<Button
-  title="Create Order"
-  onPress={()=> {
-
-navigation.navigate('OrderManagement', {
-  user: user,
-  userType: 'dealer'
-});
-
-  }}
-  color="#007AFF"
-/>
-
-</View> */}
-
-
-
-
-
+ 
 
 <View style={{ margin: 10 }}>
   <TouchableOpacity

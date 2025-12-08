@@ -9,10 +9,9 @@ const {
   GETUserQRHist,
 } = require("../controllers/qrCodeController");
 const User = require("../models/User");
-const QRCode = require("../models/QRCode");
+ 
 const router = express.Router();
-
-
+ 
 router.post('/generate-user-qr', async (req, res) => {
   try {
     const { userId } = req.body;
@@ -43,15 +42,11 @@ router.post('/generate-user-qr', async (req, res) => {
       type: 'user_verification'
     });
 
-    // Generate QR code as base64
-  // await QRCode.toDataURL(JSON.stringify(qrData));
-
+ 
 
    const qrCodeDataURL =await require("qrcode").toDataURL(qrData );
 
  
-
-
     res.json({
       success: true,
       qrCode: qrCodeDataURL,
@@ -73,11 +68,9 @@ router.post('/generate-user-qr', async (req, res) => {
 });
 
 
-
 router.route("/").post(generateQRCodes).get(getQRCodes);
 router.post("/verification", verifyQRCodes);
-
-// In your backend routes
+ 
 router.get("/history/:userId", GETUserQRHist);
 
 router.route("/:id").delete(deleteQRCode).get(getQRCodeById).put(updateQRCode);

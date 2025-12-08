@@ -7,8 +7,9 @@ const DMRDashboard = ({   }) => {
   const navigation=useNavigation()
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Month End Reports</Text>
-      <Text style={styles.subHeader}>Submit your monthly reports</Text>
+      <Text style={styles.header}>Monthly Reports</Text>
+       
+      <Text style={styles.subHeader}>Submitting Report till 5th day of each month is mandatory</Text>
       
       <ScrollView style={styles.scrollView}>
         <TouchableOpacity 
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
      
-    color: 'red',
+    color: '#2563EB',
   },
   subHeader: {
     fontSize: 16,

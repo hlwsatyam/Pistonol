@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Alert,
   Animated,
@@ -11,13 +11,15 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ImageBackground,
+  ImageBackground, Image,
   ScrollView,
   ActivityIndicator,
+  PermissionsAndroid,
 } from 'react-native';
 import {CurvedBottomBar} from 'react-native-curved-bottom-bar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomerHome from './Home';
+import { Camera, CameraType } from 'react-native-camera-kit';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   BackgroundTheme,
@@ -29,12 +31,12 @@ import {
 import ProfileScreen from '../onboarding/Profile';
 import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useMutation,   useQueryClient} from '@tanstack/react-query';
 import axios from 'axios';
 import ServicesInput from './ServicesInput';
-
+import Geolocation from "@react-native-community/geolocation";
 const {height, width} = Dimensions.get('window');
-
+import {   PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 const LeadForm = ({visible, onClose, onSubmit}) => {
   const [formData, setFormData] = useState({
     garageName: '',
@@ -50,6 +52,157 @@ const LeadForm = ({visible, onClose, onSubmit}) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+ const [isLoading, setIsLoading] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const cameraRef = useRef(null);
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+  const handleRetakePhoto = () => {
+    setCapturedImage(null);
+  };
+  const requestPermissions = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Camera permissions
+      let cameraGranted = false;
+      if (Platform.OS === 'ios') {
+        const cameraStatus = await request(PERMISSIONS.IOS.CAMERA);
+        cameraGranted = cameraStatus === RESULTS.GRANTED;
+      } else {
+        cameraGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "This app needs access to your camera",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
+        ) === PermissionsAndroid.RESULTS.GRANTED;
+      }
+
+      // Location permissions
+      let locationGranted = false;
+      if (Platform.OS === 'ios') {
+        const locationStatus = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        locationGranted = locationStatus === RESULTS.GRANTED;
+      } else {
+        locationGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: "Location Permission",
+            message: "This app needs access to your location",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
+        ) === PermissionsAndroid.RESULTS.GRANTED;
+      }
+
+      setHasPermission(cameraGranted && locationGranted);
+
+      if (locationGranted) {
+        getLocation();
+      } else {
+        setLocationError("Location permission denied");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Error requesting permissions:", error);
+      setHasPermission(false);
+      setIsLoading(false);
+    }
+  };
+const handleCameraReady = () => {
+  setCameraReady(true);
+};
+  const getLocation = () => {
+    setIsLoading(true);
+    setLocationError(null);
+    
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentLocation(position.coords);
+        setIsLoading(false);
+      },
+      (error) => {
+        const errorMessage = `Unable to get your location: ${error.message}`;
+        Alert.alert("Location Error", errorMessage);
+        setLocationError(errorMessage);
+        console.error(error);
+        setIsLoading(false);
+      },
+      { 
+        enableHighAccuracy: true, 
+        timeout: 20000, 
+        maximumAge: 10000 
+      }
+    );
+  };
+
+  const takePicture = async () => {
+  if (!cameraRef.current  ) {
+    Alert.alert("Error", "Camera is not ready yet");
+    return null;
+  }
+  
+  try {
+    // react-native-camera-kit के method से capture करें
+    const image = await cameraRef.current.capture();
+    
+    // Image object structure check करें
+    const imageUri = image.uri || image.path || image;
+    
+    await uploadImageTODB(imageUri);
+    setCapturedImage(imageUri);
+    return image;
+  } catch (error) {
+    console.log("Camera capture error:", error);
+    Alert.alert("Error", "Unable to capture image. Please try again.");
+    return null;
+  }
+};
+const [imgURLForDB, setIMGURLFORDB]=useState(null)
+
+
+
+  const uploadImageTODB = async (imageUri) => {
+    try {
+      const formData = new FormData();
+
+      formData.append("image", {
+        uri: imageUri, // local file path
+        type: "image/jpeg",
+        name: "photo.jpg",
+      });
+
+      const response = await axios.post(
+        "/upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+setIMGURLFORDB(response.data.imageUrl)
+      console.log("Upload success:", response.data);
+      Alert.alert("Success", "Image uploaded successfully!");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      Alert.alert("Error", "Upload failed");
+    }
+  };
+
+
+
+
   const handleChange = (field, value) => {
     setFormData(prev => ({...prev, [field]: value}));
   };
@@ -59,12 +212,34 @@ const LeadForm = ({visible, onClose, onSubmit}) => {
       setIsSubmitting(true);
 
  
+    if ( !hasPermission  ) {
+      Alert.alert(
+        "Incomplete location",
+        "Please ensure your location is enable and permitted  ."
+      );
+      return;
+    }
+    if ( !currentLocation  ) {
+      Alert.alert(
+        "Incomplete Information",
+        "Please ensure your location is available    ."
+      );
+      return;
+    }
 
 
 
 
 
-      await onSubmit(formData);
+      await onSubmit({...formData   , currentLocation 
+
+
+,
+   proofImageUrl: imgURLForDB,
+ 
+
+
+         });
       onClose();
     } catch (error) {
       Alert.alert('Error', 'Failed to submit lead');
@@ -204,6 +379,106 @@ const LeadForm = ({visible, onClose, onSubmit}) => {
                   multiline
                 />
               </View>
+
+
+
+
+
+
+
+
+
+ 
+
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Proof Image</Text>
+              
+              {!capturedImage ? (
+                <View style={styles.cameraPreviewContainer}>
+                  <Camera
+                    ref={cameraRef}
+                    cameraType={CameraType.Back}
+                    flashMode="auto"
+                    style={styles.cameraPreview}
+                    onCameraReady={handleCameraReady}
+                    scanBarcode={false}
+                  />
+
+                  <TouchableOpacity
+                    style={styles.captureButtonInline}
+                    onPress={takePicture}
+                   
+                  >
+                    <View style={styles.captureCircle}>
+                      <Ionicons name="camera" size={24} color="white" />
+                    </View>
+                    <Text style={styles.captureButtonText}>Tap to Capture</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.imagePreviewContainer}>
+                  <Image
+                    source={{ uri: capturedImage }}
+                    style={styles.imagePreview}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.imageButtonsContainer}>
+                    <TouchableOpacity
+                      style={[styles.imageButton, styles.retakeButton]}
+                      onPress={handleRetakePhoto}
+                    >
+                      <Text style={styles.retakeButtonText}>Retake</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.imageButton, styles.uploadButton]}
+                      onPress={() => uploadImageTODB(capturedImage)}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <ActivityIndicator color="white" />
+                      ) : (
+                        <Text style={styles.uploadButtonText}>
+                          {imgURLForDB ? 'Uploaded ✓' : 'Upload'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              
+              {imgURLForDB && (
+                <Text style={styles.uploadSuccessText}>
+                  ✓ Image uploaded successfully
+                </Text>
+              )}
+            </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
               <LinearGradient
                 colors={["blue" , "blue"  ]}
@@ -369,13 +644,150 @@ const styles = StyleSheet.create({
 
 
 
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  
+  camera: {
+    flex: 1,
+  },
+  
+  cameraPreviewContainer: {
+    marginTop: 8,
+    height: 500,
+    borderRadius: 10,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  
+  cameraPreview: {
+    flex: 1,
+  },
+  
+  cameraControls: {
+    position: 'absolute',
+    bottom: 40,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  captureButtonCamera: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  captureInnerCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'white',
+  },
+  
+  captureButtonInline: {
+   
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  
+  captureCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  
+  closeCameraButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
 
 
 
 
-
-
+  imagePreviewContainer: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  
+  imageButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  
+  imageButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  
+  retakeButton: {
+    backgroundColor: '#EF4444',
+  },
+  
+  uploadButton: {
+    backgroundColor: '#10B981',
+  },
+  
+  retakeButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  
+  uploadButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  
+  captureButton: {
+    flexDirection: 'row',
+    backgroundColor: '#3B82F6',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  
+  captureButtonText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  
+  uploadSuccessText: {
+    color: '#10B981',
+    marginTop: 8,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
 
 
 

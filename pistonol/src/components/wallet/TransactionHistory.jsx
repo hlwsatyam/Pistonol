@@ -123,7 +123,7 @@ const TransactionHistory = ({ navigation }) => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-gradient-to-r from-blue-500 to-red-500 px-4 py-6">
+      <View className="bg-blue-500  px-4 py-6">
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={() => navigation.goBack()}

@@ -790,11 +790,7 @@ const TransferFunds = ({ navigation, route }) => {
             </View>
           </View>
 
-          {/* Current Balance */}
-          <View style={styles.balanceContainer}>
-            <Text style={styles.balanceLabel}>Your Current Balance</Text>
-            <Text style={styles.balanceAmount}>₹{user?.wallet?.toLocaleString() || '0'}</Text>
-          </View>
+        
         </ScrollView>
       </KeyboardAvoidingView>
 

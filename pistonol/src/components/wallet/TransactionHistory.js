@@ -118,7 +118,7 @@ const TransactionHistory = ({ navigation }) => {
       <View style={styles.container}>
         <StatusBar backgroundColor="#3B82F6" barStyle="light-content" />
         <LinearGradient
-          colors={['#3B82F6', '#DC2626']}
+          colors={['blue', 'blue']}
           style={styles.header}
         >
           <View style={styles.headerContent}>
@@ -146,7 +146,7 @@ const TransactionHistory = ({ navigation }) => {
       
       {/* Header */}
       <LinearGradient
-        colors={['#3B82F6', '#DC2626']}
+        colors={['blue', 'blue']}
         style={styles.header}
       >
         <View style={styles.headerContent}>

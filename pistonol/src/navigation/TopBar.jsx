@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Button,
   ScrollView,
+  Text,
   TouchableOpacity,
   View,
  
@@ -36,7 +37,7 @@ const SimpleDistributorDashboard = () => {
       Alert.alert('Error', 'Failed to load user data');
     }
   };
-
+ 
 
 const navigation=useNavigation()
   return (
@@ -55,7 +56,7 @@ const navigation=useNavigation()
 
 
 
-<View style={{margin:10}}>
+{/* <View style={{margin:10}}>
 <Button
   title="View MY Target"
   
@@ -85,7 +86,77 @@ navigation.navigate('OrderManagement', {
   color="#007AFF"
 />
 
-</View>
+</View> */}
+
+{/* View My Target */}
+<TouchableOpacity
+  onPress={() =>
+    navigation.navigate("UserTargetView", {
+      user: user,
+      userType: "distributor",
+    })
+  }
+  style={{
+    backgroundColor: "#2563EB",
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    marginHorizontal: 12,
+    marginVertical: 6,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { height: 2, width: 0 },
+  }}
+>
+  <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
+    VIEW MY TARGET
+  </Text>
+</TouchableOpacity>
+
+{/* Create Order */}
+<TouchableOpacity
+  onPress={() =>
+    navigation.navigate("OrderManagement", {
+      user: user,
+      userType: "distributor",
+    })
+  }
+  style={{
+    backgroundColor: "#2563EB",
+    paddingVertical: 8,
+    paddingHorizontal: 1,
+    borderRadius: 12,
+    alignItems: "center",
+    marginHorizontal: 12,
+    marginVertical: 6,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { height: 2, width: 0 },
+  }}
+>
+  <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
+    CREATE ORDER
+  </Text>
+</TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </ScrollView>
 

@@ -299,11 +299,11 @@ export default function App() {
     }, []),
   );
 
-  const {mutate, isPending} = verifyCode();
+  const {mutate} = verifyCode();
 
   const handleScan = code => {
     setScannedCode(code);
-console.log(code)
+ 
    mutate({ role: user.role, code, _id: user._id });
   };
 

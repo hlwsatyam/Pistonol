@@ -27,10 +27,10 @@ function Employee() {
 
 
 
-<AdminTaskAssignment  />
+{/* <AdminTaskAssignment  /> */}
 
 
-
+<AdminTaskAssignmentGlobal EmployeType="company-employee" />
 
 
 
@@ -79,6 +79,7 @@ import {
 } from '@ant-design/icons';
 import { toast } from 'react-hot-toast'; 
 import AdminTaskAssignment from "./TargetManagement";
+import AdminTaskAssignmentGlobal from "./AdminTaskAssignmentGlobal";
  
  
 

@@ -510,8 +510,8 @@ function generateRegistrationPDF(user, password, pdfPath) {
 exports.registerUser = async (req, res) => {
   try {
     const { mobile, role, password } = req.body;
+ console.log(req.body)
  
-
     // Check required fields
     if (!mobile || !role || !password) {
       return res.status(400).json({
@@ -536,7 +536,47 @@ exports.registerUser = async (req, res) => {
       }
 
       username = `DIST-${year}${month}-${count.toString().padStart(4, "0")}`;
-    } else if (role === "company-employee") {
+    }
+    if (role === "dealer") {
+      // Find the last distributor count
+      const lastDistributor = await User.findOne({ role: "dealer" })
+        .sort({ createdAt: -1 })
+        .select("username");
+
+      let count = 1;
+      if (lastDistributor && lastDistributor.username.startsWith("DEAL")) {
+        const parts = lastDistributor.username.split("-");
+        count = parseInt(parts[parts.length - 1]) + 1;
+      }
+
+      username = `DEAL-${year}${month}-${count.toString().padStart(4, "0")}`;
+    }
+    if (role === "mechanic") {
+      // Find the last distributor count
+      const lastDistributor = await User.findOne({ role: "mechanic" })
+        .sort({ createdAt: -1 })
+        .select("username");
+
+      let count = 1;
+      if (lastDistributor && lastDistributor.username.startsWith("MECH")) {
+        const parts = lastDistributor.username.split("-");
+        count = parseInt(parts[parts.length - 1]) + 1;
+      }
+
+      username = `MECH-${year}${month}-${count.toString().padStart(4, "0")}`;
+    }
+     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    else if (role === "company-employee") {
       // Find the last employee count
       const lastEmployee = await User.findOne({ role: "company-employee" })
         .sort({ createdAt: -1 })

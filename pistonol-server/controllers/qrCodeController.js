@@ -4,6 +4,9 @@ const { createCanvas, loadImage } = require("canvas");
 const fs = require("fs");
 const path = require("path");
 
+const { default: mongoose } = require("mongoose");
+const transactionx = require("../models/transaction");
+
 // Ensure directory exists
 const outputDir = path.join(__dirname, "..", "generated_qrcodes");
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
@@ -286,64 +289,213 @@ exports.getQRCodes = async (req, res) => {
   }
 };
 
+// exports.verifyQRCodes = async (req, res) => {
+//   const { code, _id, role } = req.body;
+//   console.log(code, _id, role);
+   
+//   try {
+//     const user = await User.findById(_id);
+   
+//     if (!user) {
+//       return res.status(404).json({ message: "Userr not found" });
+//     }
+
+
+// let parsedCode = code;
+// try {
+//   const temp = JSON.parse(code);
+//   parsedCode = temp?.code || code;
+// } catch (e) {
+//   parsedCode = code; // fallback if it's not JSON
+// }
+
+
+//     // Step 1: Find the QR code by uniqueCode
+//     const qrCode = await QRCode.findOne({ uniqueCode: parsedCode, client: role });
+
+//     if (!qrCode) {
+//       return res
+//         .status(404)
+//         .json({ message: "QR Code not found For This User" });
+//     }
+
+//     if (qrCode.status !== "active") {
+//       return res.status(400).json({ message: `QR Code is ${qrCode.status}` });
+//     }
+
+//     // Step 2: Update QR Code status to "used"
+//     qrCode.status = "used";
+//     qrCode.user = _id;
+//     qrCode.scannedAt = new Date();
+//     await qrCode.save();
+
+//     // Step 3: Credit value to user's wallet
+
+//     user.wallet += parseInt(qrCode.value);
+//     user.lastScannedAt = new Date();
+//     await user.save();
+
+//     // ✅ Success
+//     return res.json({
+//       message: "QR Code verified successfully",
+//       user,
+//     });
+//   } catch (error) {
+//     console.error("QR Verification Error:", error);
+//     res.status(500).json({
+//       message: error.message || "Server error during QR Code verification",
+//     });
+//   }
+// };
+
+
+
+
+
+
 exports.verifyQRCodes = async (req, res) => {
   const { code, _id, role } = req.body;
-  console.log(code, _id, role);
-   
+  console.log('Verification request:', { code, _id, role });
+  
   try {
+    // Step 1: Find user
     const user = await User.findById(_id);
-   
     if (!user) {
-      return res.status(404).json({ message: "Userr not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
     }
 
+    // Step 2: Parse QR code
+    let parsedCode = code;
+    try {
+      const temp = JSON.parse(code);
+      parsedCode = temp?.code || code;
+    } catch (e) {
+      parsedCode = code;
+    }
 
-let parsedCode = code;
-try {
-  const temp = JSON.parse(code);
-  parsedCode = temp?.code || code;
-} catch (e) {
-  parsedCode = code; // fallback if it's not JSON
-}
-
-
-    // Step 1: Find the QR code by uniqueCode
-    const qrCode = await QRCode.findOne({ uniqueCode: parsedCode, client: role });
+    // Step 3: Find QR code by uniqueCode
+    const qrCode = await QRCode.findOne({ 
+      uniqueCode: parsedCode,
+      client: role 
+    });
 
     if (!qrCode) {
-      return res
-        .status(404)
-        .json({ message: "QR Code not found For This User" });
+      return res.status(404).json({
+        success: false,
+        message: "QR Code not found for this user role"
+      });
     }
 
     if (qrCode.status !== "active") {
-      return res.status(400).json({ message: `QR Code is ${qrCode.status}` });
+      return res.status(400).json({
+        success: false,
+        message: `QR Code is ${qrCode.status}`
+      });
     }
 
-    // Step 2: Update QR Code status to "used"
-    qrCode.status = "used";
-    qrCode.user = _id;
-    qrCode.scannedAt = new Date();
-    await qrCode.save();
+    // Step 4: Find company user for transaction
+    const company = await User.findOne({ role: "company" });
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company account not found"
+      });
+    }
 
-    // Step 3: Credit value to user's wallet
+    // Step 5: Start a session for transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    user.wallet += parseInt(qrCode.value);
-    user.lastScannedAt = new Date();
-    await user.save();
+    try {
+      // Step 6: Update QR code status
+      qrCode.status = "used";
+      qrCode.user = _id;
+      qrCode.scannedAt = new Date();
+      await qrCode.save({ session });
 
-    // ✅ Success
-    return res.json({
-      message: "QR Code verified successfully",
-      user,
-    });
+      // Step 7: Update user wallet
+      const amount = parseInt(qrCode.value);
+      const oldWallet = user.wallet;
+      user.wallet += amount;
+      user.lastScannedAt = new Date();
+      await user.save({ session });
+
+      // Step 8: Update company wallet (deduct amount)
+      company.wallet -= amount;
+      await company.save({ session });
+
+      // Step 9: Create transaction record
+      const transaction = await transactionx.create([{
+        sender: company._id, // Company se amount deduct hua
+        receiver: user._id, // User ko amount mila
+        amount: amount,
+        type: 'scan', // QR scan transaction
+        description: `QR Scan - Code: ${parsedCode}, Batch: ${qrCode.batchNumber}`
+      }], { session });
+
+      // Step 10: Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      // Step 11: Send success response
+      return res.json({
+        success: true,
+        message: "QR Code verified successfully",
+        data: {
+          user: {
+            _id: user._id,
+            name: user.name,
+            username: user.username,
+            wallet: user.wallet,
+            oldWallet: oldWallet,
+            credited: amount
+          },
+          qrCode: {
+            value: qrCode.value,
+            batchNumber: qrCode.batchNumber,
+            uniqueCode: qrCode.uniqueCode
+          },
+          transaction: {
+            id: transaction[0]._id,
+            amount: transaction[0].amount,
+            type: transaction[0].type,
+            description: transaction[0].description,
+            createdAt: transaction[0].createdAt
+          }
+        }
+      });
+
+    } catch (error) {
+      // Rollback if any error
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+
   } catch (error) {
     console.error("QR Verification Error:", error);
     res.status(500).json({
-      message: error.message || "Server error during QR Code verification",
+      success: false,
+      message: error.message || "Server error during QR Code verification"
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.GETUserQRHist = async (req, res) => {
   console.log( req.params)
   try {

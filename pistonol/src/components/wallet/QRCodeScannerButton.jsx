@@ -456,6 +456,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import QRScannerButton from '../ScannerButtonComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -610,7 +611,15 @@ const navigation=useNavigation()
 
       {/* Right Side - QR Code Button Only */}
       <View style={styles.actionsSection}>
-        {/* QR Code Button */}
+     
+     
+<QRScannerButton/>
+
+
+
+
+
+
         <TouchableOpacity
           style={styles.qrButton}
           onPress={handleShowQR}

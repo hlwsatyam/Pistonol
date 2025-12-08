@@ -392,12 +392,296 @@ const getUserDashboard = async (req, res) => {
   }
 };
 
+
+
+router.get('/admin/orders', async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      userType,
+      paymentMethod,
+      startDate,
+      endDate,
+      minAmount,
+      maxAmount,
+      search,
+      userId
+    } = req.query;
+
+    const query = {};
+
+    // Status filter
+    if (status) query.status = status;
+
+    // User type filter
+    if (userType && userType !== 'all') {
+      query.userType = userType;
+    }
+
+    // Payment method filter
+    if (paymentMethod) {
+      query.paymentMethod = paymentMethod;
+    }
+
+    // Date range filter
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate + 'T23:59:59.999Z')
+      };
+    }
+
+    // Amount range filter
+    if (minAmount || maxAmount) {
+      query.totalAmount = {};
+      if (minAmount) query.totalAmount.$gte = Number(minAmount);
+      if (maxAmount) query.totalAmount.$lte = Number(maxAmount);
+    }
+
+    // Search filter (order number, customer name, mobile, etc.)
+    if (search) {
+      query.$or = [
+        { orderNumber: { $regex: search, $options: 'i' } },
+        { 'user.name': { $regex: search, $options: 'i' } },
+        { 'user.username': { $regex: search, $options: 'i' } },
+        { 'user.mobile': { $regex: search, $options: 'i' } },
+        { 'user.businessName': { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Specific user filter
+    if (userId) {
+      query.user = userId;
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Execute query with population
+    const orders = await Order.find(query)
+      .populate('user', 'username name businessName mobile email role photo')
+      .populate('items.product', 'name category images price description')
+      .populate('approvedBy', 'username name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Order.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: orders,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        pages: Math.ceil(total / limit)
+      },
+      filters: req.query
+    });
+
+  } catch (error) {
+    console.error('Get admin orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Update order details (admin only)
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { totalAmount, adminNotes, userNotes, shippingAddress } = req.body;
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    // Only allow editing of pending orders
+    if (order.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only pending orders can be edited'
+      });
+    }
+
+    const updates = {};
+    if (totalAmount !== undefined) updates.totalAmount = totalAmount;
+    if (adminNotes !== undefined) updates.adminNotes = adminNotes;
+    if (userNotes !== undefined) updates.userNotes = userNotes;
+    if (shippingAddress !== undefined) updates.shippingAddress = shippingAddress;
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    ).populate('user', 'username name businessName mobile')
+     .populate('items.product', 'name price');
+
+    res.json({
+      success: true,
+      message: 'Order updated successfully',
+      data: updatedOrder
+    });
+
+  } catch (error) {
+    console.error('Update order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+
+
+// routes/orderRoutes.js में सिर्फ status update route
+
+// Update order status - FIXED ROUTE
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params; // ये orderId है
+    const { status, adminNotes } = req.body;
+console.log(req.body)
+    console.log('Updating order status:', { 
+      orderId: id, 
+      status, 
+      adminNotes,
+      route: 'PUT /orders/:id/status'
+    });
+
+    // Check if order exists
+    const order = await Order.findById(id);
+    if (!order) {
+      console.error('Order not found with ID:', id);
+      return res.status(404).json({
+        success: false,
+        message: `Order not found with ID: ${id}`
+      });
+    }
+
+    // Prepare update data
+    const updateData = { 
+      status,
+      updatedAt: Date.now()
+    };
+    
+    if (adminNotes) updateData.adminNotes = adminNotes;
+
+    // Handle status-specific updates
+    if (status === 'approved') {
+      updateData.approvedAt = new Date();
+      updateData.approvedBy = req.user?._id;
+      
+      // If payment is reward-payment, deduct from wallet
+      if (order.paymentMethod === 'reward-payment') {
+        await User.findByIdAndUpdate(order.user, {
+          $inc: { wallet: -order.totalAmount }
+        });
+      }
+
+      // Reserve stock by reducing available quantity
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: -item.quantity }
+        });
+      }
+
+    } else if (status === 'rejected') {
+      updateData.rejectedAt = new Date();
+      updateData.rejectedBy = req.user?._id;
+      
+      // If payment was reward-payment, refund wallet
+      if (order.paymentMethod === 'reward-payment' && order.status === 'approved') {
+        await User.findByIdAndUpdate(order.user, {
+          $inc: { wallet: order.totalAmount }
+        });
+      }
+      
+      // Restore stock if previously approved
+      if (order.status === 'approved') {
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: item.quantity }
+          });
+        }
+      }
+
+    } else if (status === 'shipped') {
+      updateData.shippedAt = new Date();
+    } else if (status === 'delivered') {
+      updateData.deliveredAt = new Date();
+    } else if (status === 'cancelled') {
+      updateData.cancelledAt = new Date();
+      
+      // Refund wallet for reward payments
+      if (order.paymentMethod === 'reward-payment' && order.status === 'approved') {
+        await User.findByIdAndUpdate(order.user, {
+          $inc: { wallet: order.totalAmount }
+        });
+      }
+      
+      // Restore stock if previously approved
+      if (order.status === 'approved') {
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: item.quantity }
+          });
+        }
+      }
+    }
+
+    // Update order
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    )
+    .populate('user', 'username name businessName mobile email')
+    .populate('items.product', 'name category images price')
+    .populate('approvedBy', 'username name');
+
+    console.log('Order status updated successfully:', {
+      orderId: id,
+      oldStatus: order.status,
+      newStatus: status,
+      updatedAt: new Date()
+    });
+
+    res.json({
+      success: true,
+      message: `Order status updated to ${status}`,
+      data: updatedOrder
+    });
+
+  } catch (error) {
+    console.error('Update order status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+
+
+
 // Routes
 router.post('/', createOrder);
 router.get('/user', getUserOrders); // Changed from /distributor to /user
 router.get('/admin', getAdminOrders);
 router.get('/:id', getOrder);
-router.put('/status', updateOrderStatus); // Changed to PUT /status with body
+// router.put('/status', updateOrderStatus); // Changed to PUT /status with body
 router.delete('/:orderId', deleteOrder);
 router.get('/dashboard/user', getUserDashboard); // Changed from /distributor/simple-dashboard
 

@@ -1,8 +1,9 @@
-const Lead = require('../models//Lead');
+const Lead = require('../models/Lead');
 const mongoose=require('mongoose')
 exports.createLead = async (req, res) => {
   try {
     const leadData = req.body;
+    console.log(leadData)
     const newLead = new Lead(leadData);
     await newLead.save();
     res.status(201).json(newLead);

@@ -21,14 +21,15 @@ import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CompleteOrderManagement = ({ 
-  userType = 'distributor',
-  userId,
-  isAdmin = false,
-  showCreateButton = true 
+  route, navigation
 }) => {
-  const navigation = useNavigation();
+ 
+
+    const { user, userType, isAdmin = false, showCreateButton = true } =
+    route.params || {};
+
   const queryClient = useQueryClient();
-  
+ 
   // State management
   const [refreshing, setRefreshing] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -86,13 +87,13 @@ const CompleteOrderManagement = ({
     error,
     refetch 
   } = useQuery({
-    queryKey: ['userOrders', userType, userId],
+    queryKey: ['userOrders', userType, user._id],
     queryFn: async () => {
-      const endpoint = isAdmin ? '/orders/admin' : `/orders/user?userId=${userId}&userType=${userType}`;
+      const endpoint = isAdmin ? '/orders/admin' : `/orders/user?userId=${user._id}&userType=${userType}`;
       const response = await axios.get(endpoint);
       return response.data.data || response.data.orders || [];
     },
-    enabled: !!userId
+    enabled: !!user._id
   });
 
   // Fetch products for creating order
@@ -109,13 +110,13 @@ const CompleteOrderManagement = ({
     mutationFn: async (orderData) => {
       const response = await axios.post('/orders', {
      ...orderData,
-  userId: userId,           // Changed from distributorId to userId
+  userId: user._id || user.id,           // Changed from distributorId to userId
   userType: userType, 
       });
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userOrders', userType, userId]);
+      queryClient.invalidateQueries(['userOrders', userType, user]);
       setCreateModalVisible(false);
       resetNewOrder();
       Alert.alert('Success', 'Order created successfully! 🎉');
@@ -136,7 +137,7 @@ const CompleteOrderManagement = ({
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userOrders', userType, userId]);
+      queryClient.invalidateQueries(['userOrders', userType, user._id]);
       setStatusModalVisible(false);
       setSelectedOrder(null);
       setAdminNotes('');
@@ -154,7 +155,7 @@ const CompleteOrderManagement = ({
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userOrders', userType, userId]);
+      queryClient.invalidateQueries(['userOrders', userType, user._id]);
       setDeleteModalVisible(false);
       setSelectedOrder(null);
       Alert.alert('Success', 'Order deleted successfully!');
@@ -396,7 +397,7 @@ const CompleteOrderManagement = ({
           </>
         )}
 
-        {!isAdmin && order.status === 'pending' && (
+        {/* {!isAdmin && order.status === 'pending' && (
           <TouchableOpacity 
             style={[styles.actionButton, { backgroundColor: '#EF4444' }]}
             onPress={() => handleDeleteOrder(order)}
@@ -404,7 +405,7 @@ const CompleteOrderManagement = ({
             <Icon name="delete" size={18} color="#FFFFFF" />
             <Text style={styles.actionButtonText}>Delete</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
 
       {order.distributorNotes && (
@@ -613,7 +614,7 @@ const CompleteOrderManagement = ({
                     size={20} 
                     color={config.color} 
                   />
-                  <Text style={styles.paymentOptionText}>Reward Points</Text>
+                  <Text style={styles.paymentOptionText}>on credit</Text>
                 </TouchableOpacity>
               </View>
             </View>

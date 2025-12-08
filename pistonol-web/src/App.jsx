@@ -20,7 +20,7 @@ import Marquee from "./pages/Marquee";
 import Banner from "./pages/Banner";
 import Distributor from "./pages/Distributor";
 import Verification from "./pages/Verification";
-import ChangePassword from "./pages/ChangePassword";
+ 
 import CompanyOrdersDashboard from "./pages/CompanyOrdersDashboard";
 import DealerOrderForm from "./components/Distributor/DealerOrderForm";
 import Cus from "./pages/Dashboard/Cus";

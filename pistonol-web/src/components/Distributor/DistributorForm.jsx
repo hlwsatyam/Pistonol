@@ -140,7 +140,7 @@ const DistributorForm = ({  title="distributor" ,  visible, onClose, editUserId 
         // Original fields
         username: values.username,
         mobile: values.mobile,
-        role: values.role,
+        role: title,
         ...(values.name && { name: values.name }),
         ...(values.email && { email: values.email }),
         ...(values.panNumber && { panNumber: values.panNumber }),
