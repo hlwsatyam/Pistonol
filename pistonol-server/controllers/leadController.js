@@ -3,7 +3,67 @@ const mongoose=require('mongoose')
 exports.createLead = async (req, res) => {
   try {
     const leadData = req.body;
-    console.log(leadData)
+   
+const {currentLocation ,garageName,contactName,address, mobile,  state,city, proofImageUrl}=leadData
+
+console.log(req.body)
+
+
+
+
+   if (!garageName || garageName.trim().length < 3) {
+      return res.status(400).json({ message: "Garage name is required (min 3 chars)" });
+    }
+   if (!contactName || contactName.trim().length < 3) {
+      return res.status(400).json({ message: "owner is required (min 3 chars)" });
+    }
+
+    if (!contactName || contactName.trim().length < 2) {
+      return res.status(400).json({ message: "Contact name is required" });
+    }
+
+    if (!address || !state || !city) {
+      return res.status(400).json({ message: "Address, state & city are required" });
+    }
+
+    /* ---------------- MOBILE VALIDATION ---------------- */
+    if (!mobile || !/^[6-9]\d{9}$/.test(mobile)) {
+      return res.status(400).json({ message: "Invalid mobile number" });
+    }
+
+
+
+
+
+
+
+    if (
+      !currentLocation ||
+      typeof currentLocation.latitude !== "number" ||
+      typeof currentLocation.longitude !== "number"
+    ) {
+      return res.status(400).json({ message: "Valid location (lat & lng) required" });
+    }
+
+    if (
+      currentLocation.latitude < -90 || currentLocation.latitude > 90 ||
+      currentLocation.longitude < -180 || currentLocation.longitude > 180
+    ) {
+      return res.status(400).json({ message: "Invalid latitude or longitude value" });
+    }
+
+    /* ---------------- IMAGE VALIDATION ---------------- */
+    if (!proofImageUrl || !proofImageUrl.startsWith("http")) {
+      return res.status(400).json({ message: "Proof image is required" });
+    }
+
+
+
+
+
+
+
+ 
     const newLead = new Lead(leadData);
     await newLead.save();
     res.status(201).json(newLead);

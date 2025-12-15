@@ -22,6 +22,7 @@ import axios from 'axios';
 import ThemeWithBg from '../../Skeleton/ThemeWithBg';
 import MarqueeText from '../HomeForCustomer/MarqueText';
 import LinearGradient from 'react-native-linear-gradient';
+import PromotionCardSlider from '../HomeForCustomer/PromotionCard';
 
 const PAGE_SIZE = 6;
 
@@ -277,7 +278,6 @@ const renderLeadItem = ({item}) => (
           </Text>
           
         </View>
-
         {/* Marquee Text */}
         <MarqueeText role={"company-employee"} />
 
@@ -311,6 +311,8 @@ const renderLeadItem = ({item}) => (
           </TouchableOpacity>
         </View>
 
+
+ <PromotionCardSlider role="company-employee"/>
         {isLoading ? (
           renderLoading()
         ) : (

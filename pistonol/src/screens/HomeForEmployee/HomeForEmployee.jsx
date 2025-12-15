@@ -51,7 +51,7 @@ const LeadForm = ({visible, onClose, onSubmit}) => {
     servicesOffered: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+const [openCamera, setOpenCamera] = useState(false);
  const [isLoading, setIsLoading] = useState(false);
   const [hasPermission, setHasPermission] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -163,8 +163,8 @@ const handleCameraReady = () => {
     setCapturedImage(imageUri);
     return image;
   } catch (error) {
-    console.log("Camera capture error:", error);
-    Alert.alert("Error", "Unable to capture image. Please try again.");
+    console.log("Camera capture error:", error );
+    Alert.alert("Error", error);
     return null;
   }
 };
@@ -196,7 +196,7 @@ setIMGURLFORDB(response.data.imageUrl)
       Alert.alert("Success", "Image uploaded successfully!");
     } catch (error) {
       console.error("Upload failed:", error);
-      Alert.alert("Error", "Upload failed");
+      Alert.alert("Error", error);
     }
   };
 
@@ -242,7 +242,8 @@ setIMGURLFORDB(response.data.imageUrl)
          });
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'Failed to submit lead');
+     
+      Alert.alert('Error', error?.response?.data?.message || 'Failed to submit lead');
     } finally {
       setIsSubmitting(false);
     }
@@ -392,14 +393,15 @@ setIMGURLFORDB(response.data.imageUrl)
 
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Proof Image</Text>
+              <Text style={styles.inputLabel}>Garage Image</Text>
               
               {!capturedImage ? (
                 <View style={styles.cameraPreviewContainer}>
-                  <Camera
+                  {/* <Camera
                     ref={cameraRef}
                     cameraType={CameraType.Back}
                     flashMode="auto"
+                   
                     style={styles.cameraPreview}
                     onCameraReady={handleCameraReady}
                     scanBarcode={false}
@@ -414,7 +416,90 @@ setIMGURLFORDB(response.data.imageUrl)
                       <Ionicons name="camera" size={24} color="white" />
                     </View>
                     <Text style={styles.captureButtonText}>Tap to Capture</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
+
+
+
+
+
+
+
+
+
+{/* CAMERA OPEN ONLY WHEN BUTTON CLICKED */}
+{openCamera && (
+  <Camera
+    ref={cameraRef}
+    cameraType={CameraType.Back}
+    flashMode="auto"
+    style={{
+      width: "100%",
+      height: 300,
+      borderRadius: 12,
+      overflow: "hidden",
+      marginBottom: 16,
+    }}
+    onCameraReady={handleCameraReady}
+    scanBarcode={false}
+  />
+)}
+
+{/* CAPTURE / OPEN CAMERA BUTTON */}
+<TouchableOpacity
+  onPress={() => {
+    if (!openCamera) {
+      setOpenCamera(true);   // 📷 open camera
+    } else {
+      takePicture();        // 📸 capture photo
+    }
+  }}
+  style={{
+    alignSelf: "center",
+    marginTop: 10,
+  }}
+>
+  <View
+    style={{
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      backgroundColor: "#000",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <Ionicons
+      name={openCamera ? "camera-outline" : "camera"}
+      size={28}
+      color="#fff"
+    />
+  </View>
+
+  <Text
+    style={{
+      marginTop: 6,
+      textAlign: "center",
+      color: "#000",
+      fontSize: 14,
+      fontWeight: "500",
+    }}
+  >
+    {openCamera ? "Tap to Capture" : "Open Camera"}
+  </Text>
+</TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </View>
               ) : (
                 <View style={styles.imagePreviewContainer}>
@@ -432,7 +517,7 @@ setIMGURLFORDB(response.data.imageUrl)
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.imageButton, styles.uploadButton]}
-                      onPress={() => uploadImageTODB(capturedImage)}
+                      onPress={async () =>await uploadImageTODB(capturedImage)}
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -605,8 +690,7 @@ export default function App({navigation}) {
           position="LEFT"
           component={() => (
             <CustomerHome
-              // leads={leads}
-              // isLoading={isLoading}
+           
               user={user}
               navigation={navigation}
             />

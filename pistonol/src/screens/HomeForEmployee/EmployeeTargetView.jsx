@@ -10,7 +10,8 @@ import {
   Alert,
   RefreshControl,
    
-  StatusBar,StyleSheet 
+  StatusBar,StyleSheet, 
+  Pressable
 } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
@@ -19,11 +20,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
- 
+ import DateTimePicker from "@react-native-community/datetimepicker";
+import PromotionCardSlider from '../HomeForCustomer/PromotionCard';
 const EmployeeTargetView = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { user } = route.params || {};
+  
+  const [showPicker, setShowPicker] = useState(false);
 
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const [achievedAmount, setAchievedAmount] = useState('');
@@ -33,7 +37,15 @@ const EmployeeTargetView = () => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
-
+ const onChange = (event, date) => {
+    setShowPicker(false);
+    if (date) {
+      const month = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
+      setSelectedMonth(month);
+    }
+  };
   // Employee target fetch
   const { 
     data: targets, 
@@ -141,7 +153,7 @@ const EmployeeTargetView = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#4F46E5" />
-      
+       
       {/* Header with Gradient */}
       <LinearGradient
         colors={['blue', 'blue']}
@@ -158,6 +170,7 @@ const EmployeeTargetView = () => {
           <View style={styles.placeholder} />
         </View>
       </LinearGradient>
+      
 
       <ScrollView 
         style={styles.container}
@@ -170,8 +183,9 @@ const EmployeeTargetView = () => {
           />
         }
       >
+      
         {/* Month Selection */}
-        <View style={styles.monthContainer}>
+        {/* <View style={styles.monthContainer}>
           <View style={styles.monthHeader}>
             <Icon name="calendar-today" size={20} color="blue" />
             <Text style={styles.monthLabel}>Select Month</Text>
@@ -183,7 +197,66 @@ const EmployeeTargetView = () => {
             placeholderTextColor="#9CA3AF"
             style={styles.monthInput}
           />
-        </View>
+        </View> */}
+
+
+
+
+
+
+
+
+  <View
+      style={{
+        padding: 16,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        backgroundColor: "#fff",
+      }}
+    >
+      {/* Header */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <Icon name="calendar-today" size={20} color="blue" />
+        <Text style={{ fontSize: 16, fontWeight: "600" }}>
+          Select Month
+        </Text>
+      </View>
+
+      {/* Input */}
+      <Pressable
+        onPress={() => setShowPicker(true)}
+        style={{
+          marginTop: 12,
+          paddingVertical: 14,
+          paddingHorizontal: 12,
+          borderWidth: 1,
+          borderColor: "#D1D5DB",
+          borderRadius: 10,
+        }}
+      >
+        <Text style={{ color: selectedMonth ? "#111827" : "#9CA3AF" }}>
+          {selectedMonth || "YYYY-MM"}
+        </Text>
+      </Pressable>
+
+      {/* Inline Calendar */}
+      {showPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="spinner"
+          onChange={onChange}
+        />
+      )}
+    </View>
+
+
+
+
+
+
+
 
         {/* Target Display */}
         {currentTarget ? (

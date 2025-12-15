@@ -5,6 +5,7 @@ const Attendance = require("../models/Attandance");
 const Store = require("../models/Store");
  
  const geodesic = require("geographiclib-geodesic");
+const User = require("../models/User");
  const geod = geodesic.Geodesic.WGS84;
  
 
@@ -74,6 +75,20 @@ router.post("/checkin",  async (req, res) => {
      
 
     // Find store
+    const user = await User.findById(userId);
+
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    if (!user.storeId.includes(storeId)) {
+      return res.status(404).json({ message: "this is not your distributor point." });
+    }
+
+ 
+
+
+
     const store = await Store.findById(storeId);
     if (!store) {
       return res.status(404).json({ message: "Store not found" });
@@ -117,8 +132,24 @@ router.post("/checkin",  async (req, res) => {
 // Check-out endpoint
 router.post("/checkout",  async (req, res) => {
   try {
-    const { attendanceId,userId ,latitude, longitude, image } = req.body;
+    const { attendanceId,userId ,storeId,latitude, longitude, image } = req.body;
   
+console.log(req.body)
+
+
+
+    const user = await User.findById(userId);
+
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    if (!user.storeId.includes(storeId)) {
+      return res.status(404).json({ message: "this is not your distributor point." });
+    }
+
+ 
+
 
     // Find attendance record
     const attendance = await Attendance.findOne({

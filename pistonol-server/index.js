@@ -50,11 +50,13 @@ const upload = multer({ storage });
 
 // Upload image route
 app.post("/api/upload-image", upload.single("image"), (req, res) => {
+  console.log(req.file)
+   console.log(req.files)
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
-
+ 
     // Return file URL (assuming you're serving /uploads statically)
     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
     
@@ -85,6 +87,7 @@ app.use("/api/customer", require("./routes/customer.js"));
 app.use("/api/leads", require("./routes/leadRoutes.js"));
 app.use("/api/qrcodes", require("./routes/qrCodeRoutes"));
 app.use("/api/v1/stores", require("./routes/Store.js"));
+app.use("/api/v1/update/stores", require("./routes/storeUpdate.js"));
 const attendanceRoutes = require('./routes/attendance');
 const leaveRoutes = require('./routes/leave');
 

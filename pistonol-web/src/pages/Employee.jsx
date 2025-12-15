@@ -23,7 +23,7 @@ function Employee() {
         onClose={onClose}
         editUserId={editUserId}
       />
-
+<AdminStoreManager/>
 
 
 
@@ -80,6 +80,7 @@ import {
 import { toast } from 'react-hot-toast'; 
 import AdminTaskAssignment from "./TargetManagement";
 import AdminTaskAssignmentGlobal from "./AdminTaskAssignmentGlobal";
+import AdminStoreManager from "../components/UserStoreManager";
  
  
 

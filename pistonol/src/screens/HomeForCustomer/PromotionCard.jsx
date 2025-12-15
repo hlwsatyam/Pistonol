@@ -18,7 +18,7 @@ const PromotionCardSlider = ({role}) => {
   const scrollX = useRef(new Animated.Value(0)).current;
   let scrollIndex = 0;
   const { data: banners } = useBanners();
-
+ 
   // Filter active banners that match the role or are for "All"
   const filteredBanners = useMemo(() => {
     if (!banners) return [];
