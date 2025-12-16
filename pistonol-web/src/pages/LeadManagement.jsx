@@ -521,6 +521,29 @@ const LeadDetails = ({ lead }) => {
         <Descriptions.Item label="Garage Name">
           {lead.garageName}
         </Descriptions.Item>
+        <Descriptions.Item label="Current Location Of Employee">
+           
+
+<a
+  href={`https://www.google.com/maps?q=${lead.currentLocation.latitude},${lead.currentLocation.longitude}`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <strong>Location:</strong>{" "}
+  {lead.currentLocation.latitude}, {lead.currentLocation.longitude}
+</a>
+
+
+
+
+        </Descriptions.Item>
+
+
+
+
+
+
+
         <Descriptions.Item label="Business Card Number">
           {lead.businessCardNumber || 'N/A'}
         </Descriptions.Item>
@@ -557,7 +580,31 @@ const LeadDetails = ({ lead }) => {
           {new Date(lead.updatedAt).toLocaleString()}
         </Descriptions.Item>
       </Descriptions>
-      
+
+<p className='!mt-4' >Garage Image: </p>
+
+ <img
+  src={lead.proofImageUrl}
+  alt="Proof"
+  style={{
+    width: "140px",
+    height: "140px",
+    objectFit: "cover",
+    borderRadius: "12px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    cursor: "pointer",
+    transition: "transform 0.3s ease"
+  }}
+  onMouseOver={e => (e.currentTarget.style.transform = "scale(1.05)")}
+  onMouseOut={e => (e.currentTarget.style.transform = "scale(1)")}
+ />
+
+
+
+
+
+
+
       {lead.feedbacks && lead.feedbacks.length > 0 && (
         <Card title="Feedback History" style={{ marginTop: 16 }}>
           <List

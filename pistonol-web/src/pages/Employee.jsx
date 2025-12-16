@@ -284,12 +284,28 @@ const AdminPanel = () => {
       render: (checkIn) => (
         <div>
           <div>{checkIn?.time ? new Date(checkIn.time).toLocaleString() : 'N/A'}</div>
-          {checkIn?.address && (
-            <div className="text-xs text-gray-500">
-              <EnvironmentOutlined className="mr-1" />
-              {checkIn.address}
-            </div>
-          )}
+          
+
+
+   { checkIn?.location && (
+              <div
+  style={{ cursor: "pointer", color: "#2563eb", textDecoration: "underline" }}
+  onClick={() =>
+    window.open(
+      `https://www.google.com/maps?q=${checkIn.location.latitude},${checkIn.location.longitude}`,
+      "_blank"
+    )
+  }
+>   <EnvironmentOutlined className="mr-1" />
+  <strong>Location:</strong>{" "}
+  {checkIn.location.latitude}, {checkIn.location.longitude}
+</div>
+   )}
+
+
+
+
+
         </div>
       )
     },
@@ -300,11 +316,19 @@ const AdminPanel = () => {
       render: (checkOut) => (
         <div>
           <div>{checkOut?.time ? new Date(checkOut.time).toLocaleString() : 'N/A'}</div>
-          {checkOut?.address && (
-            <div className="text-xs text-gray-500">
-              <EnvironmentOutlined className="mr-1" />
-              {checkOut.address}
-            </div>
+          { checkOut?.location && (
+              <div
+  style={{ cursor: "pointer", color: "#2563eb", textDecoration: "underline" }}
+  onClick={() =>
+    window.open(
+      `https://www.google.com/maps?q=${checkOut.location.latitude},${checkOut.location.longitude}`,
+      "_blank"
+    )
+  }
+>   <EnvironmentOutlined className="mr-1" />
+  <strong>Location:</strong>{" "}
+  {checkOut.location.latitude}, {checkOut.location.longitude}
+</div>
           )}
         </div>
       )
@@ -590,10 +614,20 @@ const AttendanceDetails = ({ record }) => {
               <div>
                 <strong>Time:</strong> {record.checkIn?.time ? new Date(record.checkIn.time).toLocaleString() : 'N/A'}
               </div>
-              {record.checkIn?.address && (
-                <div>
-                  <strong>Location:</strong> {record.checkIn.address}
-                </div>
+              {record.checkIn?.location && (
+              <div
+  style={{ cursor: "pointer", color: "#2563eb", textDecoration: "underline" }}
+  onClick={() =>
+    window.open(
+      `https://www.google.com/maps?q=${record.checkIn.location.latitude},${record.checkIn.location.longitude}`,
+      "_blank"
+    )
+  }
+>
+  <strong>Location:</strong>{" "}
+  {record.checkIn.location.latitude}, {record.checkIn.location.longitude}
+</div>
+
               )}
               {record.checkIn?.image?.url && (
                 <div>
@@ -615,11 +649,31 @@ const AttendanceDetails = ({ record }) => {
               <div>
                 <strong>Time:</strong> {record.checkOut?.time ? new Date(record.checkOut.time).toLocaleString() : 'N/A'}
               </div>
-              {record.checkOut?.address && (
-                <div>
-                  <strong>Location:</strong> {record.checkOut.address}
-                </div>
-              )}
+              
+
+
+   {record.checkOut?.location && (
+              <div
+  style={{ cursor: "pointer", color: "#2563eb", textDecoration: "underline" }}
+  onClick={() =>
+    window.open(
+      `https://www.google.com/maps?q=${record.checkOut.location.latitude},${record.checkOut.location.longitude}`,
+      "_blank"
+    )
+  }
+>
+  <strong>Location:</strong>{" "}
+  {record.checkOut.location.latitude}, {record.checkOut.location.longitude}
+</div>
+)}
+
+
+
+
+
+
+
+
               {record.checkOut?.image?.url && (
                 <div>
                   <strong>Check-out Image:</strong>

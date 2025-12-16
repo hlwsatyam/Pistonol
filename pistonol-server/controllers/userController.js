@@ -36,7 +36,7 @@ const month = now.format("MM"); // Month with leading zero
 //       // Company Name & Tagline
 //       doc.fillColor("#2563eb")
 //         .fontSize(20)
-//         .text("PISTONOL LUBRICANT PVT LTD", 220, 40, { align: "left" })
+//         .text("Pistonol Lubetech Pvt Limited", 220, 40, { align: "left" })
 //         .fontSize(10)
 //         .fillColor("#555")
 //         .text("High-Performance Lubricants • Engineered for Excellence", 220, 65);
@@ -64,7 +64,7 @@ const month = now.format("MM"); // Month with leading zero
 //         .fontSize(12)
 //         .fillColor("#444")
 //         .text(
-//           "Dear Partner,\n\nWelcome to PISTONOL LUBRICANT PVT LTD. We are delighted to have you onboard. Your registration provides you with exclusive access to our corporate resources and premium services.",
+//           "Dear Partner,\n\nWelcome to Pistonol Lubetech Pvt Limited. We are delighted to have you onboard. Your registration provides you with exclusive access to our corporate resources and premium services.",
 //           { align: "justify" }
 //         )
 //         .moveDown(1)
@@ -96,7 +96,7 @@ const month = now.format("MM"); // Month with leading zero
 //       doc.moveTo(50, 720).lineTo(550, 720).strokeColor("#2563eb").lineWidth(1).stroke();
 
 //       doc.fontSize(9).fillColor("#666")
-//         .text("PISTONOL LUBRICANT PVT LTD | Corporate Office: Mumbai, India", { align: "center" })
+//         .text("Pistonol Lubetech Pvt Limited | Corporate Office: Mumbai, India", { align: "center" })
 //         .moveDown(0.3)
 //         .text("🌐 www.pistonol.com | ✉ support@pistonol.com | ☎ +91-9876543210", { align: "center" })
 //         .moveDown(0.3)
@@ -221,9 +221,9 @@ const month = now.format("MM"); // Month with leading zero
 
 
 //             const mailOptions = {
-//   from: `"PISTONOL LUBRICANT PVT LTD" <${process.env.MAIL_USER}>`,
+//   from: `"Pistonol Lubetech Pvt Limited" <${process.env.MAIL_USER}>`,
 //   to: user.email,
-//   subject: "Welcome to PISTONOL LUBRICANT PVT LTD – Your Registration is Successful ✅",
+//   subject: "Welcome to Pistonol Lubetech Pvt Limited – Your Registration is Successful ✅",
 //   html: `
 //   <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background:#f4f6f9; padding:20px;">
 //     <div style="max-width:650px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;">
@@ -231,7 +231,7 @@ const month = now.format("MM"); // Month with leading zero
 //       <!-- Header -->
 //       <div style="background:linear-gradient(135deg,#1e293b,#2563eb); padding:25px; text-align:center; color:white;">
 //         <img src="https://pistonol.com/wp-content/uploads/2023/04/Pistonol-letter-Logo-3D-effect-1000x298.png" alt="Logo" style="width:25px;  height:25px;  margin-bottom:10px;">
-//         <h2 style="margin:0;">PISTONOL LUBRICANT PVT LTD</h2>
+//         <h2 style="margin:0;">Pistonol Lubetech Pvt Limited</h2>
 //         <p style="margin:0; font-size:13px; opacity:0.9;">High-Performance Lubricants • Engineered for Excellence</p>
 //       </div>
 
@@ -239,7 +239,7 @@ const month = now.format("MM"); // Month with leading zero
 //       <div style="padding:30px; color:#333;">
 //         <h3 style="color:#0f172a;">Hello <span style="color:#2563eb;">${user.username}</span>,</h3>
 //         <p style="font-size:15px; line-height:1.6;">
-//           🚀 Welcome to <strong>PISTONOL LUBRICANT PVT LTD</strong>!  
+//           🚀 Welcome to <strong>Pistonol Lubetech Pvt Limited</strong>!  
 //           We are excited to have you onboard. Your account has been successfully registered and is now ready to use.  
 //         </p>
 
@@ -266,7 +266,7 @@ const month = now.format("MM"); // Month with leading zero
 //       <!-- Footer -->
 //       <div style="background:#f1f5f9; padding:20px; text-align:center; font-size:12px; color:#64748b;">
 //         <p style="margin:0;">📞 +91-98765-43210 | ✉️ support@pistonollubricants.com</p>
-//         <p style="margin:5px 0 0;">© ${new Date().getFullYear()} PISTONOL LUBRICANT PVT LTD. All rights reserved.</p>
+//         <p style="margin:5px 0 0;">© ${new Date().getFullYear()} Pistonol Lubetech Pvt Limited. All rights reserved.</p>
 //       </div>
 //     </div>
 //   </div>
@@ -343,7 +343,7 @@ const month = now.format("MM"); // Month with leading zero
 
 
 
-function generateRegistrationPDF(user, password, pdfPath) {
+function genxerateRegistrationPDF(user, password, pdfPath) {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -363,7 +363,7 @@ function generateRegistrationPDF(user, password, pdfPath) {
       // Company Name & Tagline
       doc.fillColor("#2563eb")
         .fontSize(20)
-        .text("PISTONOL LUBRICANT PVT LTD", 220, yPosition + 10, { align: "left" })
+        .text("Pistonol Lubetech Pvt Limited", 220, yPosition + 10, { align: "left" })
         .fontSize(10)
         .fillColor("#555")
         .text("High-Performance Lubricants • Engineered for Excellence", 220, yPosition + 35);
@@ -442,7 +442,7 @@ function generateRegistrationPDF(user, password, pdfPath) {
         .text("Dear Partner,", 50, yPosition);
       yPosition += 20;
       
-      doc.text("Welcome to PISTONOL LUBRICANT PVT LTD. We are delighted to have you onboard. Your registration provides you with exclusive access to our corporate resources and premium services.", 50, yPosition, { width: 500, align: "justify" });
+      doc.text("Welcome to Pistonol Lubetech Pvt Limited. We are delighted to have you onboard. Your registration provides you with exclusive access to our corporate resources and premium services.", 50, yPosition, { width: 500, align: "justify" });
       yPosition += 40;
       
       doc.text("As a registered partner, you will enjoy:", 50, yPosition);
@@ -478,11 +478,7 @@ function generateRegistrationPDF(user, password, pdfPath) {
       const footerY = 750;
       doc.moveTo(50, footerY).lineTo(550, footerY).strokeColor("#2563eb").lineWidth(1).stroke();
 
-      doc.fontSize(9).fillColor("#666")
-        .text("PISTONOL LUBRICANT PVT LTD | Corporate Office: Mumbai, India", 50, footerY + 10, { align: "left" })
-        .text("www.pistonol.com | ✉ support@pistonol.com | ☎ +91-9876543210", 50, footerY + 25, { align: "left" })
  
-
       doc.end();
       
       stream.on('finish', () => {
@@ -500,7 +496,221 @@ function generateRegistrationPDF(user, password, pdfPath) {
 
 
 
+ async function generateRegistrationPDF(user, password, pdfPath) {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ size: "A4", margin: 50 });
+      const stream = fs.createWriteStream(pdfPath);
+      doc.pipe(stream);
+
+      // Background image path
+      const backgroundPath = path.join(__dirname, "..", "temp", "letter.png");
+      
+      // Function to add background to current page
+      const addBackground = () => {
+        if (fs.existsSync(backgroundPath)) {
+          // Add background with low opacity for watermark effect
+          doc.save()
+             .opacity(50) // Light watermark effect (10% opacity)
+             .image(backgroundPath, 0, 0, {
+               width: doc.page.width,
+               height: doc.page.height
+             })
+             .restore();
+        }
+      };
+
+      // Add background to first page
+      addBackground();
+
+      // Track y-position
+      let yPosition = 50;
+
+      // ========== HEADER ==========
+      // Logo
+      const logoPath = path.join(__dirname, "..", "temp", "logo.png");
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 50, yPosition, { width: 160 });
+      }
+
+      // Company Name & Tagline
+      doc.fillColor("#2563eb")
+        .fontSize(20)
+        .text("Pistonol Lubetech Pvt Limited", 220, yPosition + 10, { align: "left" })
+        .fontSize(10)
+        .fillColor("#555")
+        .text("Engine Oil • Engineered for Excellence", 220, yPosition + 35);
+
+      // Line separator
+      yPosition = 100;
+      doc.moveTo(50, yPosition).lineTo(550, yPosition).strokeColor("#2563eb").lineWidth(2).stroke();
+
+      // ========== TITLE ==========
+      yPosition += 30;
+      doc.fillColor("#0f172a")
+        .fontSize(18)
+        .text("Registration Confirmation", 50, yPosition, { align: "center", underline: true });
+      
+      yPosition += 40;
+
+      // ========== USER DETAILS ==========
+      doc.fontSize(12).fillColor("#333")
+        .text(`Username: ${user.username}`, 50, yPosition);
+      yPosition += 20;
+      
+      doc.text(`Email: ${user.email || "Not provided"}`, 50, yPosition);
+      yPosition += 20;
+      
+      doc.text(`Mobile: ${user.mobile}`, 50, yPosition);
+      yPosition += 20;
+      
+  
+      
+      doc.text(`Role: ${user.role}`, 50, yPosition);
+      yPosition += 30;
+
+      // Personal Information Section
+      doc.fontSize(14).fillColor("#1e293b")
+        .text("Personal Information", 50, yPosition, { underline: true });
+      yPosition += 25;
+      
+      doc.fontSize(11).fillColor("#333")
+        .text(`Name: ${user.name || "Not provided"}`, 50, yPosition);
+      yPosition += 15;
+      
+      doc.text(`PAN: ${user.panNumber || "Not provided"}`, 50, yPosition);
+      yPosition += 15;
+      
+      doc.text(`Aadhaar: ${user.aadhaarNumber || "Not provided"}`, 50, yPosition);
+      yPosition += 30;
+
+      // Business Information
+      if (user.businessName || user.businessType || user.businessPan) {
+        doc.fontSize(14).fillColor("#1e293b")
+          .text("Business Information", 50, yPosition, { underline: true });
+        yPosition += 25;
+        
+        if (user.businessName) {
+          doc.fontSize(11).fillColor("#333")
+            .text(`Business Name: ${user.businessName}`, 50, yPosition);
+          yPosition += 15;
+        }
+        
+        if (user.businessType) {
+          doc.text(`Business Type: ${user.businessType}`, 50, yPosition);
+          yPosition += 15;
+        }
+        
+        if (user.businessPan) {
+          doc.text(`Business PAN: ${user.businessPan}`, 50, yPosition);
+          yPosition += 15;
+        }
+        
+        yPosition += 15;
+      }
+
+      // Address Information
+      doc.fontSize(14).fillColor("#1e293b")
+        .text("Address Details", 50, yPosition, { underline: true });
+      yPosition += 25;
+      
+      doc.fontSize(11).fillColor("#333")
+        .text(`Address: ${user.address || "Not provided"}`, 50, yPosition, { width: 500 });
+      yPosition += (user.address && user.address.length > 50) ? 30 : 20;
+      
+      doc.text(`State: ${user.state || "Not provided"}`, 50, yPosition);
+      yPosition += 15;
+      
+      doc.text(`District: ${user.district || "Not provided"}`, 50, yPosition);
+      yPosition += 15;
+      
+      doc.text(`Pincode: ${user.pincode || "Not provided"}`, 50, yPosition);
+      yPosition += 30;
+
+      // Check if we need a new page
+      if (yPosition > 600) {
+        doc.addPage();
+        yPosition = 50;
+        // Add background to new page
+        addBackground();
+      }
+
+      // ========== WELCOME MESSAGE ==========
+      doc.fontSize(12).fillColor("#444")
+        .text("Dear Team,", 50, yPosition);
+      yPosition += 20;
+      
+      doc.text("Welcome to Pistonol Lubetech Pvt Limited. We are delighted to have you onboard. Your registration provides you with exclusive access to our corporate resources and premium services.", 50, yPosition, { width: 500, align: "justify" });
+      yPosition += 40;
+      
+      doc.text("As a registered partner, you will enjoy:", 50, yPosition);
+      yPosition += 20;
+
+      // Benefits list
+      const benefits = [
+        "Access to premium product catalog",
+        "Priority technical support",
+    
+        "Marketing materials and support",
+        "Network opportunities"
+      ];
+
+      benefits.forEach(benefit => {
+        doc.fontSize(10).fillColor("#444")
+          .text(`✓ ${benefit}`, 60, yPosition);
+        yPosition += 15;
+      });
+
+      yPosition += 20;
+
+   
+
+      // Check if we need another page
+      if (yPosition > 650) {
+        doc.addPage();
+        yPosition = 50;
+        // Add background to new page
+        addBackground();
+      }
+
+      // ========== CONTACT INFORMATION ==========
+      doc.fontSize(12).fillColor("#111")
+        .text("Need Help?", 50, yPosition, { underline: true });
+      yPosition += 25;
+
+      const contacts = [
+        "Technical Support: career.hr@pistonol.com | +91-9122926523",
+      
+   
+      ];
+
+      contacts.forEach(contact => {
+        doc.fontSize(10).fillColor("#444")
+          .text(`• ${contact}`, 60, yPosition, { width: 490 });
+        yPosition += 15;
+      });
  
+      yPosition += 20;
+
+      // ========== FOOTER ==========
+      const footerY = Math.min(yPosition, 750);
+      doc.moveTo(50, footerY).lineTo(550, footerY).strokeColor("#2563eb").lineWidth(1).stroke();
+
+ 
+      doc.end();
+      
+      stream.on('finish', () => {
+        resolve();
+      });
+      
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
  
  
 
@@ -653,9 +863,9 @@ exports.registerUser = async (req, res) => {
 
 
             const mailOptions = {
-  from: `"PISTONOL LUBRICANT PVT LTD" <${process.env.MAIL_USER}>`,
+  from: `"Pistonol Lubetech Pvt Limited" <${process.env.MAIL_USER}>`,
   to: user.email,
-  subject: "Welcome to PISTONOL LUBRICANT PVT LTD – Your Registration is Successful ✅",
+  subject: "Welcome to Pistonol Lubetech Pvt Limited – Your Registration is Successful ✅",
   html: `
   <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background:#f4f6f9; padding:20px;">
     <div style="max-width:650px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;">
@@ -663,7 +873,7 @@ exports.registerUser = async (req, res) => {
       <!-- Header -->
       <div style="background:linear-gradient(135deg,#1e293b,#2563eb); padding:25px; text-align:center; color:white;">
         <img src="https://pistonol.com/wp-content/uploads/2023/04/Pistonol-letter-Logo-3D-effect-1000x298.png" alt="Logo" style="width:100px;  height:50px;  margin-bottom:10px;">
-        <h2 style="margin:0;">PISTONOL LUBRICANT PVT LTD</h2>
+        <h2 style="margin:0;">Pistonol Lubetech Pvt Limited</h2>
         <p style="margin:0; font-size:13px; opacity:0.9;">High-Performance Lubricants • Engineered for Excellence</p>
       </div>
 
@@ -671,13 +881,13 @@ exports.registerUser = async (req, res) => {
       <div style="padding:30px; color:#333;">
         <h3 style="color:#0f172a;">Hello <span style="color:#2563eb;">${user.username}</span>,</h3>
         <p style="font-size:15px; line-height:1.6;">
-          🚀 Welcome to <strong>PISTONOL LUBRICANT PVT LTD</strong>!  
+          🚀 Welcome to <strong>Pistonol Lubetech Pvt Limited</strong>!  
           We are excited to have you onboard. Your account has been successfully registered and is now ready to use.  
         </p>
 
         <div style="margin:20px 0; padding:20px; background:#f9fafb; border-radius:10px; border:1px solid #e5e7eb;">
           <p style="margin:0; font-size:15px;">👤 <strong>Username:</strong> ${user.username}</p>
-          <p style="margin:8px 0 0; font-size:15px;">🔑 <strong>Password:</strong> ${password}</p>
+         
           <p style="margin:8px 0 0; font-size:15px;">📧 <strong>Email:</strong> ${user.email}</p>
         </div>
 
@@ -688,14 +898,10 @@ exports.registerUser = async (req, res) => {
           ✅ Exclusive offers for distributors and partners  
         </p>
 
-        <div style="margin-top:25px; text-align:center;">
-          <a href="https://pistonol.cloud/login" style="background:#2563eb; color:#fff; padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
-            🌐 Visit Your Dashboard
-          </a>
-        </div>
+      
         <div style="margin-top:25px; text-align:center;">
           <a href="https://play.google.com/store/apps/details?id=com.pistonol" style="background:#2563eb; color:#fff; padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
-            ✅ Or Download APK
+            ✅Download APK
           </a>
         </div>
       </div>
@@ -703,7 +909,7 @@ exports.registerUser = async (req, res) => {
       <!-- Footer -->
       <div style="background:#f1f5f9; padding:20px; text-align:center; font-size:12px; color:#64748b;">
         <p style="margin:0;">📞 +91-98765-43210 | ✉️ pistonol@rediffmail.com</p>
-        <p style="margin:5px 0 0;">© ${new Date().getFullYear()} PISTONOL LUBRICANT PVT LTD. All rights reserved.</p>
+        <p style="margin:5px 0 0;">© ${new Date().getFullYear()} Pistonol Lubetech Pvt Limited. All rights reserved.</p>
       </div>
     </div>
   </div>

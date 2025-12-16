@@ -1,6 +1,7 @@
 import BackgroundTheme from '../assets/img/ThemeBackground.png';
 import Logo from '../assets/img/pistonol.jpg';
 import tick from '../assets/img/tick.png';
+import ThemeBackground from '../assets/img/ThemeBackground.png';
 const themeColor = ['#FFA500', '#FF0000', '#0000FF'];
 const background = 'blue';
 
@@ -32,4 +33,4 @@ const formatDate = (isoDate) => {
 
 
 const color = 'white';
-export {BackgroundTheme,  formatDate,  tick,   Logo,startDirectionTheme , endDirectionTheme ,   color, background, themeColor};
+export {BackgroundTheme,  ThemeBackground,   formatDate,  tick,   Logo,startDirectionTheme , endDirectionTheme ,   color, background, themeColor};
