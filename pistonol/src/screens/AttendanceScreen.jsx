@@ -598,7 +598,7 @@ setIMGURLFORDB(null)
 
 const ActionButtons = () => {
   const hasCheckedIn = todayAttendance?.checkIn && !todayAttendance?.checkOut;
-  const hasCheckedOut = todayAttendance?.checkIn && todayAttendance?.checkOut;
+ 
   return (
     <View style={styles.buttonContainer}>
       {capturedImage ? (
@@ -667,6 +667,18 @@ const ActionButtons = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Attendance</Text>
         <View style={styles.headerRight} />
+
+
+
+   <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('AttendanceHistory', { userId: user._id })}
+        >
+          <Icon name="grading" size={24} color="#fff" />
+        </TouchableOpacity>
+
+
+
       </View>
 
       <ScrollView style={styles.container}>

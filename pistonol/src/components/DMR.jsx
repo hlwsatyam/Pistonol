@@ -269,6 +269,9 @@ import {
   Alert,
   StyleSheet,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -400,14 +403,33 @@ const MonthlySaleReport = ({ navigation }) => {
   if (!isDataLoaded) {
     return (
       <View style={styles.loadingContainer}>
+      
         <ActivityIndicator size="large" color="#2196F3" />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
-
+  const handleOutsidePress = () => {
+    Keyboard.dismiss();
+  };
   return (
+        
+
+
+    <TouchableWithoutFeedback onPress={handleOutsidePress}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      >
+
+
+
+
+
+
     <View style={styles.container}>
+
       <Text style={styles.header}>Monthly Sale Report</Text>
       
       {isSubmitted && (
@@ -421,6 +443,11 @@ const MonthlySaleReport = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+   
+
+
+
+
         {/* Date Field */}
         <MonthlySaleInput
           label="a) Position as on Date"
@@ -524,8 +551,18 @@ const MonthlySaleReport = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+               
       </ScrollView>
-    </View>
+    </View> 
+    
+    
+  
+
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+
+
+
   );
 };
 
@@ -534,6 +571,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 16,
+  },  keyboardAvoidingView: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,

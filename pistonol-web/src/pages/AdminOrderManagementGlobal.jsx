@@ -568,6 +568,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../axiosConfig';
 import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -704,10 +705,10 @@ const AdminOrderManagementGlobal = ({
       setStatusModalVisible(false);
       setSelectedOrder(null);
       setAdminNotes('');
-      message.success('Order status updated successfully!');
+      toast.success('Order status updated successfully!');
     },
     onError: (error) => {
-      message.error(error.response?.data?.message || 'Failed to update status');
+      toast.error(error.response?.data?.message || 'Failed to update status');
     }
   });
 
@@ -720,7 +721,7 @@ const AdminOrderManagementGlobal = ({
     onSuccess: () => {
       queryClient.invalidateQueries(['adminOrders', userType]);
       setEditModalVisible(false);
-      message.success('Order updated successfully!');
+      toast.success('Order updated successfully!');
     }
   });
 
@@ -732,7 +733,7 @@ const AdminOrderManagementGlobal = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['adminOrders', userType]);
-      message.success('Order deleted successfully!');
+      toast.success('Order deleted successfully!');
     }
   });
 

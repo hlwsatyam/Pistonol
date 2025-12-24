@@ -23,6 +23,7 @@ import ThemeWithBg from '../../Skeleton/ThemeWithBg';
 import MarqueeText from '../HomeForCustomer/MarqueText';
 import LinearGradient from 'react-native-linear-gradient';
 import PromotionCardSlider from '../HomeForCustomer/PromotionCard';
+import NotificationIcon from '../../components/NotificationIcon';
 
 const PAGE_SIZE = 6;
 
@@ -336,12 +337,29 @@ const renderLeadItem = ({item}) => (
     <ThemeWithBg>
       <View style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.welcomeText} numberOfLines={1} ellipsizeMode="tail">
-            Welcome, {user?.name||user?.username  || 'User'}!
-          </Text>
-          
-        </View>
+        <View style={{ 
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  paddingVertical: 12
+}}>
+  <Text
+    numberOfLines={1}
+    ellipsizeMode="tail"
+    style={{
+      fontSize: 18,
+      fontWeight: '600',
+      flex: 1,
+      marginRight: 10
+    }}
+  >
+    Welcome, {user?.name || user?.username || 'User'}!
+  </Text>
+
+  <NotificationIcon userId={user?._id} />
+</View>
+
         {/* Marquee Text */}
         <MarqueeText role={"company-employee"} />
 
@@ -446,6 +464,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     backgroundColor: "blue",
+       alignItems: 'center',
     alignItems: 'left',
   },
   welcomeText: {

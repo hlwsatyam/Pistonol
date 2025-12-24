@@ -23,7 +23,7 @@ const TransactionHistory = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState(null);
-
+console.log(user)
   useEffect(() => {
     loadUserData();
     fetchTransactions();

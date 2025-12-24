@@ -10,7 +10,8 @@ import {
   RefreshControl,
   StatusBar,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  Pressable
 } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
@@ -18,8 +19,8 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
+ import DateTimePicker from "@react-native-community/datetimepicker";
+ 
 
 const UserTargetView = () => {
   const route = useRoute();
@@ -29,13 +30,21 @@ const UserTargetView = () => {
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const [achievedAmount, setAchievedAmount] = useState('');
   const [refreshing, setRefreshing] = useState(false);
- 
+   const [showPicker, setShowPicker] = useState(false);
 const [timeoutId, setTimeoutId] = useState(null);
   function getCurrentMonth() {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
-
+ const onChange = (event, date) => {
+    setShowPicker(false);
+    if (date) {
+      const month = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
+      setSelectedMonth(month);
+    }
+  };
   // User role based configuration
   const userConfig = {
     'company-employee': {
@@ -233,7 +242,7 @@ const [timeoutId, setTimeoutId] = useState(null);
 
 
 
-<TextInput
+{/* <TextInput
   defaultValue={selectedMonth}
   onChangeText={(text) => {
     if (timeoutId) clearTimeout(timeoutId);
@@ -247,7 +256,42 @@ const [timeoutId, setTimeoutId] = useState(null);
   placeholder="YYYY-MM"
   placeholderTextColor="#9CA3AF"
   style={styles.monthInput}
-/>
+/> */}
+
+
+
+
+      {/* Input */}
+      <Pressable
+        onPress={() => setShowPicker(true)}
+        style={{
+          marginTop: 12,
+          paddingVertical: 14,
+          paddingHorizontal: 12,
+          borderWidth: 1,
+          borderColor: "#D1D5DB",
+          borderRadius: 10,
+        }}
+      >
+        <Text style={{ color: selectedMonth ? "#111827" : "#9CA3AF" }}>
+          {selectedMonth || "YYYY-MM"}
+        </Text>
+      </Pressable>
+
+      {/* Inline Calendar */}
+      {showPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="spinner"
+          onChange={onChange}
+        />
+      )}
+
+
+
+
+
 
 
 
@@ -407,11 +451,49 @@ const [timeoutId, setTimeoutId] = useState(null);
               )}
             </TouchableOpacity>
             
+
+            <TouchableOpacity
+              onPress={()=>{
+navigation.navigate('TargetHistory', { userId: user._id });
+
+              }}
+         
+              style={[
+                styles.updateButton,
+                (updateAchievedMutation.isPending || !achievedAmount) && styles.updateButtonDisabled
+              ]}
+            >
+          
+              
+                  
+                  <Text style={styles.updateButtonText}>
+                   View Histary  
+                  </Text>
+               
+              
+            </TouchableOpacity>
+
+
+
+
+
+
+
             <Text style={styles.updateNote}>
               This will be added to your total achieved amount
             </Text>
           </View>
         )}
+
+
+
+
+
+
+
+
+
+
       </ScrollView>
     </SafeAreaView>
   );

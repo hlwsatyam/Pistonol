@@ -81,6 +81,7 @@ import { toast } from 'react-hot-toast';
 import AdminTaskAssignment from "./TargetManagement";
 import AdminTaskAssignmentGlobal from "./AdminTaskAssignmentGlobal";
 import AdminStoreManager from "../components/UserStoreManager";
+import NotificationCreate from "../components/NotificationCreate";
  
  
 
@@ -578,7 +579,7 @@ const AdminPanel = () => {
 
 
 <Employee/>
-
+<NotificationCreate/>
 
     </div>
   );

@@ -100,6 +100,37 @@ const QRCodeForm = ({ visible, onClose, editQRId }) => {
           </>
         )}
 
+
+<Form.Item
+  name="client"
+  label="Client"
+  rules={[{ required: true, message: 'Please select client' }]}
+>
+  <Select placeholder="Select client">
+    {[
+     
+      
+      "distributor",
+      "dealer",
+      "mechanic",
+      "customer",
+   
+    ].map(item => (
+      <Select.Option key={item} value={item}>
+        {item.replace('-', ' ').toUpperCase()}
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
+
+
+
+
+
+
+
+
+
         {editQRId && (
           <Form.Item
             name="status"

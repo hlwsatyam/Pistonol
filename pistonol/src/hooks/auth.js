@@ -39,7 +39,8 @@ export const verifyCode = (  ) => {
 
    onSuccess: async (data) => {
       ToastAndroid.show("✅ Code Verified Successfully!", ToastAndroid.SHORT);
-      await AsyncStorage.setItem('user', JSON.stringify(data?.user));
+      // console.log(data)
+      await AsyncStorage.setItem('user', JSON.stringify(data?.data?.user));
       console.log("Verification Success:", data);
     },
     onError: (error) => {
@@ -58,16 +59,19 @@ export const verifyCode = (  ) => {
   });
 };
 
-export function useProducts() {
+export function useProducts(page = 1, limit = 6) {
   return useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', page],
     queryFn: async () => {
-      const {data} = await api.get('/products');
-      return data;
+      const { data } = await api.get('/products', {
+        params: { page, limit }
+      });
+      return data; // Returns the full response object
     },
+    keepPreviousData: true, // Smooth pagination
+
   });
 }
-
 
 
 

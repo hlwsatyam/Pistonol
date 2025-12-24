@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../axiosConfig';
+import TargetHistoryPopover from '../components/common/TargetHistoryPopover';
 
 const AdminTaskAssignmentGlobal = ({ EmployeType = 'company-employee' }) => {
   const [formData, setFormData] = useState({
@@ -210,6 +211,17 @@ const AdminTaskAssignmentGlobal = ({ EmployeType = 'company-employee' }) => {
                     <td className="px-4 py-3 font-semibold text-green-600">
                       ₹{target.achievedAmount?.toLocaleString()}
                     </td>
+
+                    <td className="px-4 py-3">
+                      <TargetHistoryPopover
+                        userId={target.userId?._id}
+                        month={target.month}
+                        userName={target.userId?.name || target.userId?.username}
+                        targetAmount={target.targetAmount}
+                      />
+                    </td>
+
+                    
                     <td className="px-4 py-3">
                       <div className="flex items-center space-x-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">

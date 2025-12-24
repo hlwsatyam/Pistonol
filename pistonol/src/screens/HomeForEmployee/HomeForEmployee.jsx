@@ -1184,7 +1184,7 @@ const insets = useSafeAreaInsets();
         />
         <CurvedBottomBar.Screen
           name="title2"
-          component={() => <ProfileScreen user={user} />}
+          component={() => <ProfileScreen      user={user} />}
           position="RIGHT"
         />
       </CurvedBottomBar.Navigator>

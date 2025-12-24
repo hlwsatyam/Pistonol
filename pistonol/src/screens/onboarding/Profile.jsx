@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import {Text, Card} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,6 +21,7 @@ const ProfileScreen = () => {
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+ 
 useFocusEffect(
     React.useCallback(() => {
       const fetchUser = async () => {
@@ -75,7 +77,7 @@ useFocusEffect(
         user?.state && {icon: 'earth', label: 'State', value: user.state},
         user?.pincode && {icon: 'pin', label: 'Pincode', value: user.pincode},
         user?.role && {icon: 'account-key', label: 'Role', value: user.role},
-        user?.wallet !== undefined && {
+       user?.role!="company-employee" && user?.wallet !== undefined && {
           icon: 'wallet',
           label: 'Wallet Balance',
           value: `₹${user.wallet}`,
@@ -197,6 +199,39 @@ useFocusEffect(
           )}
 
           {/* Logout Button */}
+    <Card style={styles.sectionCard}>
+  <Card.Content>
+    <TouchableOpacity
+      onPress={() =>
+        Linking.openURL(
+          'https://play.google.com/store/apps/details?id=com.pistonol&hl=en_IE'
+        )
+      }
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e74c3c',
+      }}
+      activeOpacity={0.7}
+    >
+      <Icon name="star-rate" size={20} color="#e74c3c" />
+      <Text
+        style={{
+          marginLeft: 8,
+          color: '#e74c3c',
+          fontSize: 16,
+          fontWeight: '600',
+        }}
+      >
+        Rate Us
+      </Text>
+    </TouchableOpacity>
+  </Card.Content>
+</Card>
           <Card style={styles.sectionCard}>
             <Card.Content>
               <TouchableOpacity

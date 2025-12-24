@@ -42,6 +42,9 @@ import TopBarForDealer from './src/navigation/TopBarForDealer';
 import TopBarForMechanic from './src/navigation/TopBarForMechanic';
 import AllLeadsView from './src/screens/HomeForEmployee/AllLeadsView';
 import TargetHistoryScreen from './src/screens/TargetHistoryScreen';
+import NotificationsScreen from './src/components/NotificationsScreen';
+import NotificationsScreenFromEmp from './src/screens/NotificationsScreen';
+import AttendanceHistory from './src/screens/AttendanceHistory';
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -69,6 +72,7 @@ const App = () => {
           <Stack.Screen name="Wallet" component={WalletScreen} />
           <Stack.Screen name="attandance" component={AttendanceScreen} />
           <Stack.Screen name="LEAVE" component={Leave} />
+          <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
           <Stack.Screen name="walletHistory" component={Histary} />
           <Stack.Screen name="TransferScreen" component={TransferScreen} />
           <Stack.Screen 
@@ -88,6 +92,14 @@ const App = () => {
           <Stack.Screen
             name="ProductListingScreen"
             component={ProductListingScreen}
+          />
+          <Stack.Screen
+            name="NotificationsFromAdmin"
+            component={NotificationsScreenFromEmp}
+          />
+          <Stack.Screen
+            name="AttendanceHistory"
+            component={AttendanceHistory}
           />
           <Stack.Screen 
             name="PrivacyPolicy" 

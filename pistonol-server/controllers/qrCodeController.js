@@ -47,7 +47,7 @@ function generate8DigitCode() {
 
 exports.generateQRCodes = async (req, res) => {
   try {
-    const { value, quantity, batchNumber } = req.body;
+    const { value, quantity, client,   batchNumber } = req.body;
     const qrCodes = [];
 
     for (let i = 0; i < quantity; i++) {
@@ -97,7 +97,7 @@ exports.generateQRCodes = async (req, res) => {
 
       // Save to DB
       const qrCodeDoc = await QRCode.create({
-        value,
+        value,client,
         uniqueCode,
         batchNumber: fullBatch,
         quantity: 1,

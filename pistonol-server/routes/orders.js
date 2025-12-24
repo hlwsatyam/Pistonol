@@ -3,11 +3,12 @@ const router = express.Router();
 const Order = require('../models/orderModel.js');
 const Product = require('../models/Product.js');
 const User = require('../models/User.js');
+const Transaction = require('../models/transaction.js');
 
 // Create order for any user type
 const createOrder = async (req, res) => {
   try {
-    const { items, paymentMethod, userId, userType = 'distributor', userNotes } = req.body;
+    const { items, reciever="6922847591757cdd37316509",     paymentMethod, userId, userType = 'distributor', userNotes } = req.body;
    
     console.log(req.body);
     
@@ -62,7 +63,7 @@ const createOrder = async (req, res) => {
 
     // Create order
     const order = new Order({
-      user: userId,
+      user: userId,reciever:reciever? reciever:"6922847591757cdd37316509",
       userType: userType,
       items: orderItems,
       orderNumber: `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -550,7 +551,7 @@ router.put('/:id', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const { id } = req.params; // ये orderId है
-    const { status, adminNotes } = req.body;
+    const { status,  receiver="6922847591757cdd37316509",   adminNotes } = req.body;
 console.log(req.body)
     console.log('Updating order status:', { 
       orderId: id, 
@@ -584,9 +585,40 @@ console.log(req.body)
       
       // If payment is reward-payment, deduct from wallet
       if (order.paymentMethod === 'reward-payment') {
+
+
+
+
+ const user = await User.findById(order.user);
+      if (user.wallet < order.totalAmount) {
+        return res.status(400).json({
+          success: false,
+          message: 'Insufficient wallet balance on order creator so we can not deduct wallet amount of that person.'
+        });
+      }
+
+
+
+
+
+
+
         await User.findByIdAndUpdate(order.user, {
           $inc: { wallet: -order.totalAmount }
         });
+        await User.findByIdAndUpdate(receiver, {
+          $inc: { wallet: order.totalAmount }
+        });
+
+    const transaction = new Transaction({
+      sender: order.user,
+      receiver: receiver,
+      amount:order.totalAmount,
+      type: "transfer",
+      description:"order aproval payment"
+    });
+await transaction.save()
+
       }
 
       // Reserve stock by reducing available quantity

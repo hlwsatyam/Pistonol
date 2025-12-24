@@ -12,6 +12,11 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  reciever: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   // Add user type to identify what type of user placed the order
   userType: {
     type: String,

@@ -191,8 +191,8 @@ console.log(req.body)
 // Get attendance history
 router.get("/history",  async (req, res) => {
   try {
-    const { page = 1, limit = 30 } = req.query;
-    const userId = req.user.id;
+    const { page = 1,userId, limit = 30 } = req.query;
+    
 
     const attendance = await Attendance.find({ user: userId })
       .populate("store", "name location")

@@ -90,7 +90,17 @@ const QRCodeList = ({ setEditQRId, showDrawer }) => {
       title: "Value",
       dataIndex: "value",
       key: "value",
-      render: (text) => <strong>{text}</strong>,
+      render: (text  , rec ) => <strong>
+        
+        
+        {text}
+    <p>
+      {
+        rec.client
+      }
+    </p>
+      
+      </strong>,
     },
     {
       title: "Batch",

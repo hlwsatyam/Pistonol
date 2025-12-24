@@ -1,316 +1,575 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { FaWallet, FaQrcode, FaMoneyBillWave, FaHistory, FaExchangeAlt } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
-import {QRCodeSVG} from 'qrcode.react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from '../axiosConfig';
+import {
+  Card,
+  Table,
+  Tag,
+  Statistic,
+  Row,
+  Col,
+  Select,
+  DatePicker,
+  Input,
+  Spin,
+  Alert,
+  Button,
+  Tooltip,
+  Avatar,
+  Typography
+} from 'antd';
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  QrcodeOutlined,
+  BankOutlined,
+  ReloadOutlined,
+  DownloadOutlined,
+  FilterOutlined,
+  EyeOutlined
+} from '@ant-design/icons';
+import moment from 'moment';
 
-const Wallet = () => {
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('balance');
-  const [amount, setAmount] = useState('');
-  const [qrCodeData, setQrCodeData] = useState(null);
+const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
+const { Option } = Select;
+const { Search } = Input;
 
-  // Fetch user wallet data
-  const { data: walletData, isLoading: walletLoading } = useQuery({
-    queryKey: ['wallet'],
+const CompanyWalletTransactions = ({ companyId = '6922847591757cdd37316509' }) => {
+  const [filters, setFilters] = useState({
+    type: 'all',
+    search: '',
+    dateRange: null,
+    page: 1,
+    limit: 10
+  });
+
+  // Fetch transactions
+  const { 
+    data: transactionsData, 
+    isLoading, 
+    isError, 
+    error, 
+    refetch 
+  } = useQuery({
+    queryKey: ['companyTransactions', companyId, filters],
     queryFn: async () => {
-      const { data } = await axios.get('/api/users/wallet');
-      return data;
-    }
-  });
-
-  // Fetch QR codes associated with the user
-  const { data: qrCodes, isLoading: qrLoading } = useQuery({
-    queryKey: ['qrcodes'],
-    queryFn: async () => {
-      const { data } = await axios.get('/api/qrcodes');
-      return data;
-    }
-  });
-
-  // Fetch transaction history
-  const { data: transactions, isLoading: transactionsLoading } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: async () => {
-      const { data } = await axios.get('/api/transactions');
-      return data;
-    }
-  });
-
-  // Mutation for adding funds
-  const addFundsMutation = useMutation({
-    mutationFn: async (amount) => {
-      const { data } = await axios.post('/api/wallet/deposit', { amount });
-      return data;
+      const response = await axios.get(`/transactions/user-transactions/${companyId}`);
+      return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['wallet']);
-      queryClient.invalidateQueries(['transactions']);
-      toast.success('Funds added successfully!');
-      setAmount('');
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to add funds');
-    }
+    keepPreviousData: true,
   });
 
-  // Mutation for generating QR code
-  const generateQrMutation = useMutation({
-    mutationFn: async (qrData) => {
-      const { data } = await axios.post('/api/qrcodes/generate', qrData);
-      return data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['qrcodes']);
-      queryClient.invalidateQueries(['wallet']);
-      setQrCodeData(data);
-      toast.success('QR Code generated successfully!');
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to generate QR code');
-    }
-  });
+  const transactions = transactionsData?.transactions || [];
+  const success = transactionsData?.success || false;
 
-  const handleAddFunds = (e) => {
-    e.preventDefault();
-    if (!amount || isNaN(amount) || amount <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-    addFundsMutation.mutate(parseFloat(amount));
-  };
-
-  const handleGenerateQr = () => {
-    generateQrMutation.mutate({
-      value: 100, // Default value, can be made configurable
-      quantity: 1,
-      batchNumber: `BATCH-${Date.now()}`
+  // Calculate statistics
+  const calculateStats = () => {
+    if (!transactions.length) return {};
+    
+    let totalSent = 0;
+    let totalReceived = 0;
+    let totalScans = 0;
+    let totalDeposits = 0;
+    
+    transactions.forEach(txn => {
+      const isSender = txn.sender._id === companyId;
+      
+      if (txn.type === 'transfer') {
+        if (isSender) totalSent += txn.amount;
+        else totalReceived += txn.amount;
+      } else if (txn.type === 'scan') {
+        totalScans += txn.amount;
+      } else if (txn.type === 'deposit') {
+        totalDeposits += txn.amount;
+      }
     });
+
+    return {
+      totalSent,
+      totalReceived,
+      totalScans,
+      totalDeposits,
+      netFlow: totalReceived - totalSent
+    };
   };
 
-  if (walletLoading || qrLoading || transactionsLoading) {
-    return <div className="text-center py-8">Loading wallet data...</div>;
+  const stats = calculateStats();
+
+  // Filter transactions based on filters
+  const filteredTransactions = transactions.filter(txn => {
+    // Type filter
+    if (filters.type !== 'all' && txn.type !== filters.type) return false;
+    
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch = 
+        txn.description?.toLowerCase().includes(searchLower) ||
+        txn.sender?.name?.toLowerCase().includes(searchLower) ||
+        txn.sender?.username?.toLowerCase().includes(searchLower) ||
+        txn.receiver?.name?.toLowerCase().includes(searchLower) ||
+        txn.receiver?.username?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+    
+    // Date range filter
+    if (filters.dateRange) {
+      const txnDate = moment(txn.createdAt);
+      const [start, end] = filters.dateRange;
+      if (!txnDate.isBetween(start, end, 'day', '[]')) return false;
+    }
+    
+    return true;
+  });
+
+  // Table columns
+  const columns = [
+    {
+      title: 'Date & Time',
+      dataIndex: 'createdAt',
+      key: 'date',
+      width: 180,
+      render: (date) => moment(date).format('DD/MM/YYYY HH:mm'),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      width: 120,
+      render: (type, record) => {
+        const isSender = record.sender._id === companyId;
+        
+        const typeConfig = {
+          transfer: {
+            label: isSender ? 'Sent' : 'Received',
+            icon: isSender ? <ArrowUpOutlined /> : <ArrowDownOutlined />,
+            color: isSender ? 'volcano' : 'green'
+          },
+          scan: {
+            label: 'QR Scan',
+            icon: <QrcodeOutlined />,
+            color: 'blue'
+          },
+          deposit: {
+            label: 'Deposit',
+            icon: <BankOutlined />,
+            color: 'purple'
+          }
+        };
+        
+        const config = typeConfig[type] || { label: type, icon: null, color: 'default' };
+        
+        return (
+          <Tag 
+            icon={config.icon} 
+            color={config.color}
+            style={{ padding: '4px 8px', fontSize: '12px' }}
+          >
+            {config.label}
+          </Tag>
+        );
+      },
+      filters: [
+        { text: 'Sent', value: 'transfer:sent' },
+        { text: 'Received', value: 'transfer:received' },
+        { text: 'QR Scan', value: 'scan' },
+        { text: 'Deposit', value: 'deposit' },
+      ],
+      onFilter: (value, record) => {
+        if (value === 'transfer:sent') {
+          return record.type === 'transfer' && record.sender._id === companyId;
+        }
+        if (value === 'transfer:received') {
+          return record.type === 'transfer' && record.receiver._id === companyId;
+        }
+        return record.type === value;
+      },
+    },
+    {
+      title: 'From / To',
+      dataIndex: 'sender',
+      key: 'participant',
+      width: 200,
+      render: (sender, record) => {
+        const isSender = sender._id === companyId;
+        const otherParty = isSender ? record.receiver : sender;
+        
+        return (
+          <div className="flex items-center space-x-2">
+            <Avatar 
+              size="small" 
+              style={{ 
+                backgroundColor: isSender ? '#f56a00' : '#7265e6',
+                fontSize: '12px'
+              }}
+            >
+              {otherParty.name?.charAt(0) || otherParty.username?.charAt(0) || 'U'}
+            </Avatar>
+            <div>
+              <div className="font-medium text-sm">
+                {otherParty.name || otherParty.username || 'Unknown User'}
+              </div>
+              <div className="text-xs text-gray-500">
+                {otherParty.role ? `${otherParty.role.charAt(0).toUpperCase() + otherParty.role.slice(1)}` : 'User'}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      render: (desc) => (
+        <Tooltip title={desc}>
+          <span className="text-sm">{desc || 'No description'}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Amount (₹)',
+      dataIndex: 'amount',
+      key: 'amount',
+      width: 150,
+      align: 'right',
+      render: (amount, record) => {
+        const isSender = record.sender._id === companyId;
+        const isCredit = record.type === 'scan' || record.type === 'deposit' || !isSender;
+        
+        return (
+          <div className={`text-right ${isCredit ? 'text-green-600' : 'text-red-600'}`}>
+            <span className="font-bold text-lg">
+              {isCredit ? '+' : '-'}₹{amount.toLocaleString('en-IN')}
+            </span>
+            <div className="text-xs text-gray-500">
+              {isCredit ? 'Credit' : 'Debit'}
+            </div>
+          </div>
+        );
+      },
+      sorter: (a, b) => a.amount - b.amount,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      align: 'center',
+      render: (_, record) => (
+        <Tooltip title="View Details">
+          <Button 
+            type="text" 
+            icon={<EyeOutlined />} 
+            size="small"
+            onClick={() => handleViewDetails(record)}
+          />
+        </Tooltip>
+      ),
+    },
+  ];
+
+  // Handlers
+  const handleTypeFilter = (value) => {
+    setFilters(prev => ({ ...prev, type: value }));
+  };
+
+  const handleSearch = (value) => {
+    setFilters(prev => ({ ...prev, search: value }));
+  };
+
+  const handleDateRange = (dates) => {
+    setFilters(prev => ({ ...prev, dateRange: dates }));
+  };
+
+  const handleViewDetails = (transaction) => {
+    // Implement modal or detail view
+    console.log('View transaction:', transaction);
+  };
+
+  const handleExport = () => {
+    // Implement export functionality
+    console.log('Export transactions');
+  };
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  if (isError) {
+    return (
+      <div className="p-6">
+        <Alert
+          message="Error Loading Transactions"
+          description={error?.message || 'Failed to load transaction history'}
+          type="error"
+          showIcon
+          action={
+            <Button size="small" danger onClick={handleRefresh}>
+              Retry
+            </Button>
+          }
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="  mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Wallet Header */}
-        <div className="bg-blue-600 text-white p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold flex items-center">
-                <FaWallet className="mr-2" /> My Wallet
-              </h1>
-              <p className="text-blue-100">Manage your funds and QR codes</p>
-            </div>
-            <div className="text-right">
-              <p className="text-blue-200">Current Balance</p>
-              <p className="text-3xl font-bold">
-                ₹{walletData?.balance?.toLocaleString() || '0.00'}
-              </p>
-            </div>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <Title level={3} className="mb-2">Company Wallet Transactions</Title>
+            <Text type="secondary">
+              Monitor all financial transactions for your company
+            </Text>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              icon={<DownloadOutlined />} 
+              onClick={handleExport}
+              disabled={!transactions.length}
+            >
+              Export
+            </Button>
+            <Button 
+              icon={<ReloadOutlined />} 
+              onClick={handleRefresh}
+              loading={isLoading}
+            >
+              Refresh
+            </Button>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex border-b">
-          <button
-            onClick={() => setActiveTab('balance')}
-            className={`px-6 py-3 font-medium ${activeTab === 'balance' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
-          >
-            <FaMoneyBillWave className="inline mr-2" /> Balance
-          </button>
-          <button
-            onClick={() => setActiveTab('qrcodes')}
-            className={`px-6 py-3 font-medium ${activeTab === 'qrcodes' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
-          >
-            <FaQrcode className="inline mr-2" /> QR Codes
-          </button>
-          <button
-            onClick={() => setActiveTab('transactions')}
-            className={`px-6 py-3 font-medium ${activeTab === 'transactions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
-          >
-            <FaHistory className="inline mr-2" /> Transactions
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {/* Balance Tab */}
-          {activeTab === 'balance' && (
-            <div>
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">Add Funds</h2>
-                <form onSubmit={handleAddFunds} className="flex gap-4">
-                  <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Enter amount"
-                    className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min="1"
-                  />
-                  <button
-                    type="submit"
-                    disabled={addFundsMutation.isLoading}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 flex items-center"
-                  >
-                    {addFundsMutation.isLoading ? 'Processing...' : (
-                      <>
-                        <FaExchangeAlt className="mr-2" /> Add Funds
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-blue-800 mb-2">Total Deposits</h3>
-                  <p className="text-2xl font-bold">₹{walletData?.totalDeposits?.toLocaleString() || '0.00'}</p>
-                </div>
-                <div className="bg-green-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-green-800 mb-2">Total Withdrawals</h3>
-                  <p className="text-2xl font-bold">₹{walletData?.totalWithdrawals?.toLocaleString() || '0.00'}</p>
-                </div>
-                <div className="bg-purple-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-purple-800 mb-2">QR Codes Value</h3>
-                  <p className="text-2xl font-bold">₹{walletData?.qrCodeValue?.toLocaleString() || '0.00'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* QR Codes Tab */}
-          {activeTab === 'qrcodes' && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Your QR Codes</h2>
-                <button
-                  onClick={handleGenerateQr}
-                  disabled={generateQrMutation.isLoading}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-green-400 flex items-center"
-                >
-                  {generateQrMutation.isLoading ? 'Generating...' : (
-                    <>
-                      <FaQrcode className="mr-2" /> Generate QR Code
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {qrCodeData && (
-                <div className="mb-8 p-4 border rounded-lg bg-gray-50">
-                  <h3 className="font-medium mb-2">New QR Code Generated</h3>
-                  <div className="flex flex-col md:flex-row items-center gap-6">
-                    <div className="p-2 bg-white rounded">
-                      <QRCode value={qrCodeData.value} size={128} />
-                    </div>
-                    <div>
-                      <p><strong>Value:</strong> ₹{qrCodeData.value}</p>
-                      <p><strong>Batch Number:</strong> {qrCodeData.batchNumber}</p>
-                      <p><strong>Status:</strong> <span className="capitalize">{qrCodeData.status}</span></p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {  Array.isArray(qrCodes) &&  qrCodes?.map((qr) => (
-                  <div key={qr._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-center mb-3">
-                      <QRCode value={qr.value} size={120} />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-medium">₹{qr.value}</p>
-                      <p className="text-sm text-gray-600">Batch: {qr.batchNumber}</p>
-                      <span className={`inline-block px-2 py-1 text-xs rounded-full mt-2 ${
-                        qr.status === 'active' ? 'bg-green-100 text-green-800' :
-                        qr.status === 'used' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {qr.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {qrCodes?.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <FaQrcode className="mx-auto text-4xl mb-2" />
-                  <p>No QR codes found</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Transactions Tab */}
-          {activeTab === 'transactions' && (
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Transaction History</h2>
+        {/* Stats Cards */}
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={12} lg={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title="Total Sent"
+                value={stats.totalSent}
+                precision={2}
+                prefix="₹"
+                valueStyle={{ color: '#cf1322' }}
+             
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title="Total Received"
+                value={stats.totalReceived}
+                precision={2}
+                prefix="₹"
+                valueStyle={{ color: '#3f8600' }}
+       
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title="QR Scan Revenue"
+                value={stats.totalScans}
+                precision={2}
+                prefix="₹"
+                valueStyle={{ color: '#1890ff' }}
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {  Array.isArray(transactions ) &&   transactions?.map((txn) => (
-                      <tr key={txn._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(txn.createdAt).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <span className={`inline-flex px-2 py-1 rounded-full text-xs ${
-                            txn.type === 'deposit' ? 'bg-green-100 text-green-800' :
-                            txn.type === 'withdrawal' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {txn.type}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ₹{txn.amount.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {txn.description || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`inline-flex px-2 py-1 rounded-full text-xs ${
-                            txn.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            txn.status === 'failed' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {txn.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title="Net Flow"
+                value={stats.netFlow}
+                precision={2}
+                prefix="₹"
+                valueStyle={{ color: stats.netFlow >= 0 ? '#3f8600' : '#cf1322' }}
+              />
+              <div className="mt-2 text-sm text-gray-500">
+                {stats.netFlow >= 0 ? 'Positive' : 'Negative'} balance
               </div>
+            </Card>
+          </Col>
+        </Row>
 
-              {transactions?.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <FaHistory className="mx-auto text-4xl mb-2" />
-                  <p>No transactions found</p>
-                </div>
+        {/* Filters */}
+        <Card bordered={false} className="mb-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+            <div className="flex-1">
+              <Search
+                placeholder="Search by description or user..."
+                allowClear
+                onSearch={handleSearch}
+                className="w-full"
+              />
+            </div>
+            <div className="flex space-x-4">
+              <Select
+                placeholder="Filter by type"
+                style={{ width: 150 }}
+                value={filters.type}
+                onChange={handleTypeFilter}
+              >
+                <Option value="all">All Types</Option>
+                <Option value="transfer">Transfers</Option>
+                <Option value="scan">QR Scans</Option>
+                <Option value="deposit">Deposits</Option>
+              </Select>
+              
+              <RangePicker
+                placeholder={['Start Date', 'End Date']}
+                onChange={handleDateRange}
+                style={{ width: 250 }}
+              />
+              
+              <Button 
+                icon={<FilterOutlined />}
+                onClick={() => setFilters({
+                  type: 'all',
+                  search: '',
+                  dateRange: null,
+                  page: 1,
+                  limit: 10
+                })}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Transactions Table */}
+        <Card 
+          bordered={false} 
+          className="shadow-lg"
+          title={
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold">
+                Transaction History {filteredTransactions.length > 0 && 
+                  <span className="text-gray-500 text-sm ml-2">
+                    ({filteredTransactions.length} records)
+                  </span>
+                }
+              </span>
+              {isLoading && <Spin size="small" />}
+            </div>
+          }
+        >
+          {filteredTransactions.length > 0 ? (
+            <Table
+              columns={columns}
+              dataSource={filteredTransactions}
+              rowKey="_id"
+              loading={isLoading}
+              pagination={{
+                pageSize: filters.limit,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => 
+                  `${range[0]}-${range[1]} of ${total} transactions`,
+              }}
+              scroll={{ x: 800 }}
+              size="middle"
+            />
+          ) : (
+            <div className="text-center py-12">
+              {isLoading ? (
+                <Spin size="large" />
+              ) : (
+                <>
+                  <div className="text-4xl mb-4">📊</div>
+                  <Title level={4} className="mb-2">No Transactions Found</Title>
+                  <Text type="secondary">
+                    {transactions.length === 0 
+                      ? "No transactions have been made yet." 
+                      : "No transactions match your filters."}
+                  </Text>
+                  {transactions.length === 0 ? (
+                    <div className="mt-4">
+                      <Button type="primary">
+                        Create First Transaction
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <Button onClick={() => setFilters({
+                        type: 'all',
+                        search: '',
+                        dateRange: null,
+                        page: 1,
+                        limit: 10
+                      })}>
+                        Clear Filters
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
-        </div>
+        </Card>
+
+        {/* Summary */}
+        {filteredTransactions.length > 0 && (
+          <Card bordered={false} className="mt-6 shadow-sm">
+            <Title level={5} className="mb-4">Summary</Title>
+            <Row gutter={[16, 16]}>
+              <Col span={6}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-800">
+                    {filteredTransactions.length}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Transactions</div>
+                </div>
+              </Col>
+              <Col span={6}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    ₹{filteredTransactions
+                      .filter(t => t.type === 'scan' || t.type === 'deposit' || t.receiver._id === companyId)
+                      .reduce((sum, t) => sum + t.amount, 0)
+                      .toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Credits</div>
+                </div>
+              </Col>
+              <Col span={6}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">
+                    ₹{filteredTransactions
+                      .filter(t => t.type === 'transfer' && t.sender._id === companyId)
+                      .reduce((sum, t) => sum + t.amount, 0)
+                      .toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Debits</div>
+                </div>
+              </Col>
+              <Col span={6}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">
+                    ₹{filteredTransactions
+                      .reduce((sum, t) => {
+                        const isCredit = t.type === 'scan' || t.type === 'deposit' || t.receiver._id === companyId;
+                        return isCredit ? sum + t.amount : sum - t.amount;
+                      }, 0)
+                      .toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-sm text-gray-600">Net Total</div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        )}
       </div>
     </div>
   );
 };
 
-export default Wallet;
+export default CompanyWalletTransactions;

@@ -46,12 +46,7 @@ const HomeItemCard = ({setScanVisible, setScanTab}) => {
 
   ];
 
-  const rightCard = {
-    id: 5,
-    title: 'Learning Academy',
-    icon: <Icon name="school" size={40} color={color} />,
-    description: 'Enhance your knowledge with our courses',
-  };
+ 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -75,22 +70,7 @@ const HomeItemCard = ({setScanVisible, setScanTab}) => {
           </TouchableOpacity>
         ))}
       </View>
-
-      <View style={styles.rightContainer}>
-        <TouchableOpacity style={[styles.rightCard]}>
-          <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, styles.rightIconContainer]}>
-              {rightCard.icon}
-            </View>
-            <Text style={[styles.cardTitle, styles.rightCardTitle]}>
-              {rightCard.title}
-            </Text>
-            <Text style={styles.rightCardDescription}>
-              {rightCard.description}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+ 
     </ScrollView>
   );
 };
@@ -101,8 +81,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   leftContainer: {
-    width: '60%',
-    height: 250,
+    width: '100%',
+    
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',

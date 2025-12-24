@@ -107,6 +107,7 @@ const dmrRoutes = require('./routes/dmr');
 app.use('/api/dmr', dmrRoutes);
 
 app.use("/api/analytics", require("./routes/analyticsRoutes.js"));
+app.use("/api/notifications", require("./routes/notificationRoutes.js"));
 app.use("/api/wallet", require("./routes/walletRoutes.js"));
 app.use("/api/products", require("./routes/productRoutes.js"));
 app.use("/api/marquees" , require("./routes/marquee.js"));

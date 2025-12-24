@@ -129,7 +129,7 @@ router.get('/users/by-role/:role', async (req, res) => {
 router.post('/transfer', async (req, res) => {
   try {
     const { senderId, receiverId, amount } = req.body;
-console.log(req.body)
+ 
     // Validate input
     if (!senderId || !receiverId || !amount) {
       return res.status(400).json({

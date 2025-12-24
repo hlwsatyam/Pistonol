@@ -21,7 +21,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
  import DateTimePicker from "@react-native-community/datetimepicker";
-import PromotionCardSlider from '../HomeForCustomer/PromotionCard';
+ 
 const EmployeeTargetView = () => {
   const route = useRoute();
   const navigation = useNavigation();

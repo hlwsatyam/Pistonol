@@ -29,9 +29,7 @@ const TermsAndConditionsScreen = ({navigation}) => {
         <Text style={styles.title}>
           Pistonol Lubricant PBT Ltd - Terms of Service
         </Text>
-        <Text style={styles.effectiveDate}>
-          Effective Date: January 1, 2023
-        </Text>
+ 
 
         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
         <Text style={styles.paragraph}>
@@ -77,12 +75,7 @@ const TermsAndConditionsScreen = ({navigation}) => {
           after changes constitutes acceptance of the revised Terms.
         </Text>
 
-        <Text style={styles.contact}>
-          For questions: {'\n'}
-          Email: legal@pistonolpbt.com {'\n'}
-          Phone: +1 (800) 555-0199 {'\n'}
-          Address: 123 Industrial Park, Lubricant City, LC 12345
-        </Text>
+      
       </ScrollView>
     </ThemeWithBg>
   );
@@ -130,21 +123,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: color,
+    color: 'blue',
     marginTop: 15,
     marginBottom: 8,
   },
   paragraph: {
     fontSize: 15,
     lineHeight: 22,
-    color: color,
+    color: 'blue',
     marginBottom: 12,
   },
   contact: {
     marginTop: 30,
     fontSize: 14,
     lineHeight: 20,
-    color: color,
+    color: 'blue',
     textAlign: 'center',
     fontStyle: 'italic',
   },
