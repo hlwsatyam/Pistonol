@@ -316,7 +316,7 @@ export default function App() {
 
    style={[
         styles.bottomBar,
-        { paddingBottom: insets.bottom  } // ⬅ Safe area + extra gap
+        { paddingBottom: insets.bottom  }  
       ]}
 
         shadowStyle={styles.shawdow}

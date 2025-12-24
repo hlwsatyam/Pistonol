@@ -4,6 +4,43 @@ const Target = require("../models/Target");
 const User = require("../models/User");
 const TargetHistory = require("../models/TargetHistory");
 
+
+
+
+router.get('/history/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { month } = req.query;
+    
+    let query = { userId };
+    if (month) {
+      query.month = month;
+    }
+    
+    const history = await TargetHistory.find(query)
+      .sort({ changedAt: -1 }) // Latest first
+      .lean();
+    
+    res.status(200).json({
+      success: true,
+      history
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
 // Set target for any user (Admin only)
 router.post("/set-target", async (req, res) => {
   try {

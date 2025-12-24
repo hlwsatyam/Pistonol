@@ -125,11 +125,17 @@ const AttendanceScreen = ({ route, navigation }) => {
         console.error(error);
         setIsLoading(false);
       },
-      { 
-        enableHighAccuracy: true, 
-        timeout: 20000, 
-        maximumAge: 10000 
-      }
+      // { 
+      //   enableHighAccuracy: true, 
+      //   timeout: 20000, 
+      //   // maximumAge: 10000 
+      // }
+
+
+ 
+{}
+ 
+
     );
   };
 
@@ -302,6 +308,9 @@ setIMGURLFORDB(response.data.imageUrl)
 
       Alert.alert("Success", "Check-in recorded successfully!");
       fetchTodayAttendance();
+setIMGURLFORDB(null)
+   setCapturedImage(null);
+
     } catch (error) {
       console.log("Check-in error:", error);
       const errorMessage = error.response?.data?.message || "Check-in failed. Please try again.";
@@ -356,7 +365,8 @@ setIMGURLFORDB(response.data.imageUrl)
         longitude: currentLocation.longitude,
         image: imgURLForDB,
       });
-
+setIMGURLFORDB(null)
+   setCapturedImage(null);
       Alert.alert("Success", "Check-Out recorded successfully!");
       fetchTodayAttendance();
     } catch (error) {

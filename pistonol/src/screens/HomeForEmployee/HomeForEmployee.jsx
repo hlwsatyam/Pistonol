@@ -38,6 +38,7 @@ import ServicesInput from './ServicesInput';
 import Geolocation from "@react-native-community/geolocation";
 const {height, width} = Dimensions.get('window');
 import {   PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 
@@ -646,11 +647,15 @@ const LeadForm = ({ visible, onClose, onSubmit }) => {
         console.error(error);
         setIsLoading(false);
       },
-      { 
-        enableHighAccuracy: true, 
-        timeout: 20000, 
-        maximumAge: 10000 
-      }
+      // { 
+      //   enableHighAccuracy: true, 
+      //   timeout: 20000, 
+      //   maximumAge: 10000 
+      // }
+
+
+{}
+
     );
   };
 
@@ -738,7 +743,22 @@ const LeadForm = ({ visible, onClose, onSubmit }) => {
         currentLocation,
         proofImageUrl: imgURLForDB,
       });
-      
+      setFormData({
+    garageName: '',
+    businessCardNumber: '',
+    contactName: '',
+    mobile: '',
+    comment: '',
+    address: '',
+    state: '',
+    city: '',
+    pincode: '',
+    servicesOffered: '',
+
+
+      })
+      setCapturedImage(null)
+      setIMGURLFORDB('')
       onClose();
     } catch (error) {
       Alert.alert('Error', error?.response?.data?.message || 'Failed to submit lead');
@@ -831,6 +851,7 @@ const LeadForm = ({ visible, onClose, onSubmit }) => {
                 showsVerticalScrollIndicator={false}
               >
                 <Text style={styles.leadFormTitle}>VISITOR LOG BOOK (VLB)</Text>
+                <Text style={styles.leadFormTitle}>Pistonol</Text>
                 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Garage/Dealer Name</Text>
@@ -1059,7 +1080,7 @@ export default function App({navigation}) {
   const [leadModalVisible, setLeadModalVisible] = useState(false);
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
-
+const insets = useSafeAreaInsets();
   useFocusEffect(
     React.useCallback(() => {
       const fetchUser = async () => {
@@ -1126,7 +1147,14 @@ export default function App({navigation}) {
       <CurvedBottomBar.Navigator
         screenOptions={{headerShown: false}}
         type="UP"
-        style={styles.bottomBar}
+        style={[styles.bottomBar  
+,
+{ paddingBottom: insets.bottom  } ]
+
+
+
+
+          }
         shadowStyle={styles.shawdow}
         height={60}
         circleWidth={55}
@@ -1368,6 +1396,7 @@ const styles = StyleSheet.create({
   },
   modalBg: {
     flex: 1,
+     
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
@@ -1410,6 +1439,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
     padding: 12,
+   
     fontSize: 16,
     color: '#333',
     borderWidth: 1,
@@ -1718,6 +1748,7 @@ const styles = StyleSheet.create({
   // Modal styles
   modalOverlay: {
     flex: 1,
+  
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',

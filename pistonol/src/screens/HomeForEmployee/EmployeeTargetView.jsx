@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
-   
+   KeyboardAvoidingView,
   StatusBar,StyleSheet, 
   Pressable
 } from 'react-native';
@@ -171,8 +171,20 @@ const EmployeeTargetView = () => {
         </View>
       </LinearGradient>
       
+<KeyboardAvoidingView
 
-      <ScrollView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+
+
+        style={styles.keyboardAvoidingView}
+
+
+
+
+>
+  <ScrollView 
         style={styles.container}
         refreshControl={
           <RefreshControl 
@@ -184,27 +196,8 @@ const EmployeeTargetView = () => {
         }
       >
       
-        {/* Month Selection */}
-        {/* <View style={styles.monthContainer}>
-          <View style={styles.monthHeader}>
-            <Icon name="calendar-today" size={20} color="blue" />
-            <Text style={styles.monthLabel}>Select Month</Text>
-          </View>
-          <TextInput
-            value={selectedMonth}
-            onChangeText={setSelectedMonth}
-            placeholder="YYYY-MM"
-            placeholderTextColor="#9CA3AF"
-            style={styles.monthInput}
-          />
-        </View> */}
-
-
-
-
-
-
-
+       
+ 
 
   <View
       style={{
@@ -405,6 +398,29 @@ const EmployeeTargetView = () => {
                 </>
               )}
             </TouchableOpacity>
+
+
+
+            <TouchableOpacity
+              onPress={()=>{
+navigation.navigate('TargetHistory', { userId: user._id });
+
+              }}
+         
+              style={[
+                styles.updateButton,
+                (updateAchievedMutation.isPending || !achievedAmount) && styles.updateButtonDisabled
+              ]}
+            >
+          
+              
+                  
+                  <Text style={styles.updateButtonText}>
+                   View Histary  
+                  </Text>
+               
+              
+            </TouchableOpacity>
             
             <Text style={styles.updateNote}>
               This will be added to your total achieved amount
@@ -412,6 +428,9 @@ const EmployeeTargetView = () => {
           </View>
         )}
       </ScrollView>
+
+</KeyboardAvoidingView>
+    
     </SafeAreaView>
   );
 };
@@ -442,7 +461,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  
+    keyboardAvoidingView: {
+    flex: 1,
+  },
   // Header Styles
   headerGradient: {
     paddingTop: 10,

@@ -112,7 +112,7 @@ app.use("/api/products", require("./routes/productRoutes.js"));
 app.use("/api/marquees" , require("./routes/marquee.js"));
 app.use("/api/banners" , require("./routes/banner.js"));
 
-app.use("/api/targets" , require("./routes/targets.js"));
+app.use("/api/targets" , require("./routes//targets.js"));
 app.use("/api/transactions" , require("./routes/transfer.js"));
 app.use("/api/orders" , require("./routes/orders.js"));
 const PORT = process.env.PORT || 5000;

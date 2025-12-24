@@ -40,6 +40,8 @@ import MonthlySaleReport from './src/components/DMR';
 import StockReport from './src/components/StockReport';
 import TopBarForDealer from './src/navigation/TopBarForDealer';
 import TopBarForMechanic from './src/navigation/TopBarForMechanic';
+import AllLeadsView from './src/screens/HomeForEmployee/AllLeadsView';
+import TargetHistoryScreen from './src/screens/TargetHistoryScreen';
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -117,10 +119,20 @@ const App = () => {
           <Stack.Screen name="LeadDetail" component={LeadDetailScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="LeadAnalytics" component={LeadAnalytics} />
- 
+ <Stack.Screen 
+  name="AllLeadsView" 
+  component={AllLeadsView}
+  options={{
+    title: 'All Leads',
+    headerShown: false, // या true रखें अगर header चाहिए
+  }}
+/>
 <Stack.Screen name="MonthlySaleReport" component={MonthlySaleReport} />
 <Stack.Screen name="StockReport" component={StockReport} />
- 
+ <Stack.Screen 
+  name="TargetHistory" 
+  component={TargetHistoryScreen}
+/>
  
 <Stack.Screen 
   name="TransferToCompany" 

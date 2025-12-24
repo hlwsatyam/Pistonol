@@ -54,6 +54,70 @@ const CustomerHome = ({user, navigation}) => {
 
   const leads = data?.pages.flat() || [];
 
+  const handleViewAllLeads = () => {
+    navigation.navigate('AllLeadsView', {
+      userId: user._id,
+      userName: user.name || user.username,
+    });
+  };
+
+ const ListHeader = () => (
+    <View>
+      {/* Existing header with View All button */}
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+        paddingHorizontal: 4,
+      }}>
+        <Text style={{
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: '#333',
+        }}>
+          My Leads ({leads.length})
+        </Text>
+        
+        {/* View All Button with inline styling */}
+        <TouchableOpacity
+          onPress={handleViewAllLeads}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: 'blue',
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 20,
+            elevation: 2,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+          }}
+          activeOpacity={0.7}>
+          <Text style={{
+            color: 'white',
+            fontWeight: '600',
+            fontSize: 14,
+            marginRight: 6,
+          }}>
+            View All
+          </Text>
+          <Ionicons name="arrow-forward" size={16} color="white" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+
+
+
+
+
+
+
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
@@ -316,9 +380,15 @@ const renderLeadItem = ({item}) => (
         {isLoading ? (
           renderLoading()
         ) : (
-          <FlatList
+          <FlatList style={{
+
+            marginBottom:55 
+          }}
             data={leads}
             renderItem={renderLeadItem}
+
+     ListHeaderComponent={ListHeader}
+
             keyExtractor={item => item._id}
             contentContainerStyle={styles.leadList}
             ListEmptyComponent={
@@ -337,6 +407,7 @@ const renderLeadItem = ({item}) => (
             }
             showsVerticalScrollIndicator={false}
             onEndReached={loadMore}
+          
             onEndReachedThreshold={0.1}
             ListFooterComponent={renderFooter}
             refreshControl={
@@ -356,7 +427,7 @@ const renderLeadItem = ({item}) => (
               onPress={() => navigation.navigate('ViewMyTarget', {user})}
               style={styles.updateSellsButton}
               activeOpacity={0.8}>
-              <Text style={styles.updateSellsText}>Update Sells</Text>
+              <Text style={styles.updateSellsText}>target & Sells</Text>
             </TouchableOpacity>
             {/* <Ionicons name="stats-chart-outline" size={24} color="white" /> */}
             <Text style={styles.statValue}>{leads.length || 0}</Text>
