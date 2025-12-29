@@ -15,12 +15,7 @@ exports.createNotification = async (req, res) => {
       });
     }
 
-    if (user.role !== "company-employee") {
-      return res.status(400).json({
-        success: false,
-        message: "Notifications can only be sent to company employees"
-      });
-    }
+ 
 
     const notification = await Notification.create({
       userId,

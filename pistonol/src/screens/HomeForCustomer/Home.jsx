@@ -15,6 +15,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {formatDate} from '../../locale/Locale';
 import axios from 'axios';
+import QRCodeScannerButton from '../../components/wallet/QRCodeScannerButton';
 
 const CustomerHome = ({setScanVisible, setScanTab}) => {
   const [user, setUser] = useState(null);
@@ -111,6 +112,7 @@ const CustomerHome = ({setScanVisible, setScanTab}) => {
           />
         }
       >
+        <QRCodeScannerButton/>
         <MarqueText role={user?.role} />
         <PrizeCard
           user={user}

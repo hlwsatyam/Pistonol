@@ -114,7 +114,11 @@ navigation.navigate('OrderManagement', {
   </TouchableOpacity>
 </View>
 
-<View style={{ margin: 10 }}>
+
+
+
+
+{/* <View style={{ margin: 10 }}>
   <TouchableOpacity
     onPress={() => {
       navigation.navigate("OrderManagement", {
@@ -133,13 +137,45 @@ navigation.navigate('OrderManagement', {
       Create Order
     </Text>
   </TouchableOpacity>
-</View>
+</View> */}
 
 
 
-
-
-
+ 
+  <View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("OrdersManagement"  );
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+     Order Management
+    </Text>
+  </TouchableOpacity>
+</View>  
+  <View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("CreateOrder"  );
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+     Order Create
+    </Text>
+  </TouchableOpacity>
+</View>  
 
 
 

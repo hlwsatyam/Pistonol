@@ -45,6 +45,13 @@ import TargetHistoryScreen from './src/screens/TargetHistoryScreen';
 import NotificationsScreen from './src/components/NotificationsScreen';
 import NotificationsScreenFromEmp from './src/screens/NotificationsScreen';
 import AttendanceHistory from './src/screens/AttendanceHistory';
+import ReferralHistoryScreen from './src/screens/ReferralHistoryScreen';
+import DMRHistoryScreen from './src/screens/DMRHistoryScreen';
+import StockReportHistoryScreen from './src/screens/StockReportHistoryScreen';
+import OrdersManagementScreen from './src/screens/OrdersManagementScreen';
+import CreateOrderScreen from './src/screens/CreateOrderScreen';
+import MyOrdersScreen from './src/screens/MyOrdersScreen';
+import TravelScreen from './src/screens/TravelScreen';
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -121,6 +128,7 @@ const App = () => {
  
           <Stack.Screen name="HomeForCustomer" component={HomeForCustomer} />
           <Stack.Screen name="HomeForEmployee" component={HomeForEmployee} />
+          <Stack.Screen name="updateTravel" component={TravelScreen} />
           <Stack.Screen name="ViewMyTarget" component={EmployeeTargetView} />
           <Stack.Screen name="UserTargetView" component={UserTargetView} />
            <Stack.Screen name="HomeForDistributor" component={TopBar} />
@@ -139,7 +147,7 @@ const App = () => {
     headerShown: false, // या true रखें अगर header चाहिए
   }}
 />
-<Stack.Screen name="MonthlySaleReport" component={MonthlySaleReport} />
+<Stack.Screen name="MonthlySaleReport"  component={MonthlySaleReport} />
 <Stack.Screen name="StockReport" component={StockReport} />
  <Stack.Screen 
   name="TargetHistory" 
@@ -154,12 +162,30 @@ const App = () => {
   }}
 />
 <Stack.Screen 
+  name="ReferralHistory" 
+  component={ReferralHistoryScreen}
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen 
   name="TransactionHistory" 
   component={TransactionHistory}
   options={{
     headerShown: false,
   }}
 />
+<Stack.Screen name="CreateOrder" component={CreateOrderScreen} />
+<Stack.Screen name="OrdersManagement" component={OrdersManagementScreen} />
+<Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+
+<Stack.Screen name="DMRHistory" component={DMRHistoryScreen} />
+<Stack.Screen name="StockReportHistory" component={StockReportHistoryScreen} />
+
+
+
+
+
 
 
         </Stack.Navigator>

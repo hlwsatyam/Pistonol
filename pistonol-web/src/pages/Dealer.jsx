@@ -8,6 +8,7 @@ import DistributorForm from "../components/Distributor/DistributorForm";
 import AdminTaskAssignmentGlobal from "./AdminTaskAssignmentGlobal.jsx";
 import AdminOrderManagementGlobal from "./AdminOrderManagementGlobal.jsx";
 import AdminDMRReports from "../components/AdminDMRReports.jsx";
+import NotificationCreate from "../components/NotificationCreate.jsx";
 
 function Distributor() {
   const [visible, setVisible] = useState(false);
@@ -32,6 +33,7 @@ function Distributor() {
         onClose={onClose}
         editUserId={editUserId}
       />
+         <NotificationCreate role="dealer"/>
 {/* <AdminDMRReports  title={"dealer"}  /> */}
 
       <AdminTaskAssignmentGlobal EmployeType ={"dealer"}  />

@@ -54,7 +54,7 @@ const navigation=useNavigation()
   
  
 
-<View style={{ margin: 10 }}>
+{/* <View style={{ margin: 10 }}>
   <TouchableOpacity
     onPress={() => {
       navigation.navigate("UserTargetView", {
@@ -94,10 +94,84 @@ const navigation=useNavigation()
       Create Order
     </Text>
   </TouchableOpacity>
+</View> */}
+
+
+
+
+
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("UserTargetView", {
+        user: user,
+        userType: "dealer",
+      });
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      View My Target
+    </Text>
+  </TouchableOpacity>
 </View>
 
 
 
+
+
+
+
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("CreateOrder", {
+        user: user,
+        userType: "dealer",
+      });
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      Create Order
+    </Text>
+  </TouchableOpacity>
+</View>
+
+
+
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("OrdersManagement", {
+        user: user,
+        userType: "dealer",
+      });
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      Orders Management
+    </Text>
+  </TouchableOpacity>
+</View>
+
+ 
 
 
 

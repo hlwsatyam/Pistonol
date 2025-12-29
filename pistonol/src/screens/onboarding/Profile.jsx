@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Linking,
+  Share,
 } from 'react-native';
 import {Text, Card} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,6 +23,27 @@ const ProfileScreen = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
  
+
+
+
+const handleShare = async () => {
+  try {
+    await Share.share({
+      message: `⭐ Check out this amazing app!\n\n👉 Download here:\nhttps://play.google.com/store/apps/details?id=com.pistonol\n\n🎁 Use my referral code: ${user.myReferralCode}`,
+    });
+  } catch (error) {
+    console.log('Share error:', error);
+  }
+};
+
+
+
+
+
+
+
+
+
 useFocusEffect(
     React.useCallback(() => {
       const fetchUser = async () => {
@@ -116,7 +138,7 @@ useFocusEffect(
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Profile Header */}
         <LinearGradient
-          colors={themeColor}
+          colors={['#0000FF', '#0000FF', '#0000FF']}
           style={styles.profileHeader}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 0}}>
@@ -198,40 +220,107 @@ useFocusEffect(
               ),
           )}
 
-          {/* Logout Button */}
-    <Card style={styles.sectionCard}>
+ 
+ 
+
+
+
+
+
+<Card style={styles.sectionCard}>
   <Card.Content>
-    <TouchableOpacity
-      onPress={() =>
-        Linking.openURL(
-          'https://play.google.com/store/apps/details?id=com.pistonol&hl=en_IE'
-        )
-      }
+    <View
       style={{
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e74c3c',
+        justifyContent: 'space-between',
+        gap: 12,
       }}
-      activeOpacity={0.7}
     >
-      <Icon name="star-rate" size={20} color="#e74c3c" />
-      <Text
+      {/* ⭐ Rate Us */}
+      <TouchableOpacity
+        onPress={() =>
+          Linking.openURL(
+            'https://play.google.com/store/apps/details?id=com.pistonol&hl=en_IE'
+          )
+        }
         style={{
-          marginLeft: 8,
-          color: '#e74c3c',
-          fontSize: 16,
-          fontWeight: '600',
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 12,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#e74c3c',
         }}
+        activeOpacity={0.7}
       >
-        Rate Us
-      </Text>
-    </TouchableOpacity>
+        <Icon name="star" size={20} color="#e74c3c" />
+        <Text
+          style={{
+            marginLeft: 6,
+            color: '#e74c3c',
+            fontSize: 15,
+            fontWeight: '600',
+          }}
+        >
+          Rate Us
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+         navigation.navigate('ReferralHistory',
+
+   {
+     userId: user?._id 
+   }
+
+         )
+        }
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 12,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#e74c3c',
+        }}
+        activeOpacity={0.7}
+      >
+        <Icon name="history" size={20} color="#e74c3c" />
+        <Text
+          style={{
+            marginLeft: 6,
+            color: '#e74c3c',
+            fontSize: 15,
+            fontWeight: '600',
+          }}
+        >
+          Share
+        </Text>
+      </TouchableOpacity>
+
+  
+    </View>
   </Card.Content>
 </Card>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           <Card style={styles.sectionCard}>
             <Card.Content>
               <TouchableOpacity

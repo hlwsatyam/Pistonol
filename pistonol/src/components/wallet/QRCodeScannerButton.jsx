@@ -599,10 +599,10 @@ const navigation=useNavigation()
         </View>
         <View style={styles.userDetails}>
           <Text style={styles.userName} numberOfLines={1}>
-            {user?.name || 'User'}
+            {user?.name  || 'User'}
           </Text>
           <Text style={styles.userUsername} numberOfLines={1}>
-            @{user?.username}
+            {user?.username}
           </Text>
           <Text style={styles.userRole}>
             {user?.role?.toUpperCase()}

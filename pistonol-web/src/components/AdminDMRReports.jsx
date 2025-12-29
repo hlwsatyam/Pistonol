@@ -4,6 +4,7 @@ import { Table, Card, Statistic, DatePicker, Select, Space, Tag, Typography } fr
 import { useQuery } from '@tanstack/react-query';
 import axios from '../axiosConfig';
 import dayjs from 'dayjs';
+import DistributorReportsPopover from './DistributorReportsPopover';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -32,6 +33,19 @@ const AdminDMRReports = ({title="distributor"}) => {
         <div>
           <div><strong>{text || record.distributor.name}</strong></div>
           <div style={{ fontSize: '12px', color: '#666' }}>{record.distributor.mobile}</div>
+
+
+        {record.distributor?._id && (
+          <DistributorReportsPopover isDMR={true} distributorId={record.distributor._id}>
+            <a className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer ml-2">
+              View Reports
+            </a>
+          </DistributorReportsPopover>
+        )}
+
+
+
+
         </div>
       ),
     },
@@ -74,6 +88,21 @@ const AdminDMRReports = ({title="distributor"}) => {
         <div>
           <div><strong>{text || record.distributor.name}</strong></div>
           <div style={{ fontSize: '12px', color: '#666' }}>{record.distributor.mobile}</div>
+
+
+
+
+
+      {record.distributor?._id && (
+          <DistributorReportsPopover isDMR={false} distributorId={record.distributor._id}>
+            <a className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer ml-2">
+              View Reports
+            </a>
+          </DistributorReportsPopover>
+        )}
+
+
+
         </div>
       ),
     },
@@ -172,7 +201,7 @@ const AdminDMRReports = ({title="distributor"}) => {
       </div>
 
       {/* Tables */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      {/* <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}> */}
         <Card title="Monthly Sale Reports" loading={isLoading}>
           <Table
             dataSource={monthlySales}
@@ -192,7 +221,7 @@ const AdminDMRReports = ({title="distributor"}) => {
             size="small"
           />
         </Card>
-      </div>
+      {/* </div> */}
     </div>
   );
 };

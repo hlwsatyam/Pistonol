@@ -3,7 +3,7 @@ import axios from '../axiosConfig';
 import { toast, Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 
-const NotificationCreate = () => {
+const NotificationCreate = ({role='company-employee'}) => {
   const [formData, setFormData] = useState({
     userId: '',
     title: '',
@@ -49,7 +49,7 @@ const NotificationCreate = () => {
   const fetchCompanyEmployees = async () => {
     try {
       setFetchingEmployees(true);
-      const response = await axios.get('/auth/byrole/company-employee');
+      const response = await axios.get(`/auth/byrole/${role}`);
       
       if (Array.isArray(response.data)) {
         setEmployees(response.data);
@@ -362,7 +362,7 @@ const NotificationCreate = () => {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Create Notification</h2>
-                <p className="text-gray-600 mt-2">Send notifications to company employees</p>
+                <p className="text-gray-600 mt-2">Send notifications</p>
               </div>
 
               <form onSubmit={handleSubmit}>

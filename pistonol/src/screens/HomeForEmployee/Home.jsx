@@ -24,7 +24,7 @@ import MarqueeText from '../HomeForCustomer/MarqueText';
 import LinearGradient from 'react-native-linear-gradient';
 import PromotionCardSlider from '../HomeForCustomer/PromotionCard';
 import NotificationIcon from '../../components/NotificationIcon';
-
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const PAGE_SIZE = 6;
 
 const CustomerHome = ({user, navigation}) => {
@@ -356,6 +356,21 @@ const renderLeadItem = ({item}) => (
   >
     Welcome, {user?.name || user?.username || 'User'}!
   </Text>
+
+   
+
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('updateTravel', {userId:user._id})}
+             style={{marginHorizontal:22}}
+              activeOpacity={0.8}>
+                    <Icon name="account" size={28} color="#333" />
+            </TouchableOpacity>
+
+
+
+
+
+
 
   <NotificationIcon userId={user?._id} />
 </View>

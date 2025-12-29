@@ -18,7 +18,7 @@ export const verifyOtp = () => {
       const response = await api.post('/auth/otp/verify', {
         mobile,
         otp,
-        forwordId: forwordId || undefined,
+        referralCode: forwordId || undefined,
       });
       return response.data;
     },

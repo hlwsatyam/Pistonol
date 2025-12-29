@@ -275,8 +275,10 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import MonthlySaleInput from '../components/Mont';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const MonthlySaleReport = ({ navigation }) => {
   const [formData, setFormData] = useState({
     positionAsOnDate: new Date().toISOString().split('T')[0],
@@ -289,12 +291,17 @@ const MonthlySaleReport = ({ navigation }) => {
     cashInHand: '',
     purchaseOfBusinessAssets: ''
   });
-  
+  const [showDate, setShowDate] = useState(false);
   const [distributorId, setDistributorId] = useState('');
   const [loading, setLoading] = useState(false);
   const [existingReport, setExistingReport] = useState(null);
+  const [userx, setUser] = useState(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+const today = new Date();
 
+// 🔒 Current month start & end
+const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   useEffect(() => {
     loadUserData();
     loadExistingReport();
@@ -306,6 +313,7 @@ const MonthlySaleReport = ({ navigation }) => {
       if (userData) {
         const user = JSON.parse(userData);
         setDistributorId(user._id);
+        setUser(user)
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -414,23 +422,81 @@ const MonthlySaleReport = ({ navigation }) => {
   };
   return (
         
+<SafeAreaView style={{flex:1}}>
+
+      <TouchableWithoutFeedback onPress={handleOutsidePress}>
+      
 
 
-    <TouchableWithoutFeedback onPress={handleOutsidePress}>
+
+
+
+
+
+
+
+
+
+
+
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
 
+<View
+  style={{
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+  padding:5,
+  }}
+>
+  {/* ⬅️ Back */}
+  <TouchableOpacity
+    onPress={() => navigation.goBack()}
+    style={{ width: 40 }}
+    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+  >
+    <Icon name="arrow-back" size={24} color="#000" />
+  </TouchableOpacity>
 
+  {/* 🟰 Center Title */}
+  <View style={{ flex: 1, alignItems: 'center' }}>
+    <Text
+      style={{
+        fontSize: 16,
+        fontWeight: '600',
+      }}
+    >
+      Monthly Sell
+    </Text>
+  </View>
+
+  {/* 🕘 History */}
+  <TouchableOpacity
+    onPress={() =>  navigation.navigate('DMRHistory', { distributorId: userx._id })}
+    style={{ width: 60, alignItems: 'flex-end' }}
+  >
+    <Text
+      style={{
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#e74c3c',
+      }}
+    >
+      History
+    </Text>
+  </TouchableOpacity>
+</View>
 
 
 
 
     <View style={styles.container}>
 
-      <Text style={styles.header}>Monthly Sale Report</Text>
+       
       
       {isSubmitted && (
         <View style={styles.submittedBanner}>
@@ -447,9 +513,83 @@ const MonthlySaleReport = ({ navigation }) => {
 
 
 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+<Text>Position As On Date</Text>
+
+<TouchableOpacity
+  onPress={() => setShowDate(true)}
+  style={{
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  }}
+>
+  <Text>
+    {formData.positionAsOnDate || 'Select date'}
+  </Text>
+</TouchableOpacity>
+
+{showDate && (
+  <DateTimePicker
+    value={
+      formData.positionAsOnDate
+        ? new Date(formData.positionAsOnDate)
+        : today
+    }
+    mode="date"
+    minimumDate={startOfMonth}   // ✅ only current month start
+    maximumDate={endOfMonth}     // ✅ only current month end
+    onChange={(e, selectedDate) => {
+      setShowDate(false);
+
+      if (selectedDate) {
+        const formattedDate =
+          selectedDate.getFullYear() +
+          '-' +
+          String(selectedDate.getMonth() + 1).padStart(2, '0') +
+          '-' +
+          String(selectedDate.getDate()).padStart(2, '0');
+
+        handleValueChange('positionAsOnDate', formattedDate);
+      }
+    }}
+  />
+)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {/* Date Field */}
-        <MonthlySaleInput
+        {/* <MonthlySaleInput
           label="a) Position as on Date"
           field="positionAsOnDate"
           initialValue={formData.positionAsOnDate}
@@ -457,7 +597,7 @@ const MonthlySaleReport = ({ navigation }) => {
           isDate={true}
           isSubmitted={isSubmitted}
           onValueChange={handleValueChange}
-        />
+        /> */}
 
         {/* Numeric Fields - हर एक अलग component */}
         <MonthlySaleInput
@@ -560,6 +700,9 @@ const MonthlySaleReport = ({ navigation }) => {
 
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
+</SafeAreaView>
+
+
 
 
 

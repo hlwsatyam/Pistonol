@@ -997,9 +997,87 @@ exports.sendOtp = async (req, res) => {
       .json({ message: error.message || "Server error while sending OTP" });
   }
 };
+// exports.verify = async (req, res) => {
+//   try {
+//     const { mobile, referralCode,    otp } = req.body;
+
+//     // Validate inputs
+//     if (!mobile || !/^[0-9]{10}$/.test(mobile)) {
+//       return res
+//         .status(400)
+//         .json({ message: "Valid mobile number is required" });
+//     }
+
+//     if (!otp || !/^[0-9]{6}$/.test(otp)) {
+//       return res.status(400).json({ message: "Valid 6-digit OTP is required" });
+//     }
+
+//     // Find user
+//     const user = await User.findOne({ mobile });
+
+//     if (!user) {
+//       let username;
+
+//       const lastEmployee = await User.findOne({ role: "customer" })
+//         .sort({ createdAt: -1 })
+//         .select("username");
+
+//       let count = 1;
+//       if (lastEmployee && lastEmployee.username.startsWith("CUS")) {
+//         const parts = lastEmployee.username.split("-");
+//         count = parseInt(parts[parts.length - 1]) + 1;
+//       }
+
+//       username = `CUS-${year}${month}-${count.toString().padStart(4, "0")}`;
+
+//       const newUser = new User({
+//         username,
+//         mobile,
+//         isVerify: true,
+//         role: "customer",
+//         password: otp,
+//       });
+
+//      const sss= await newUser.save();
+//       return res.status(200).json({
+//         message: "Account Created successfully!",
+//         user:sss,
+//       });
+//     }
+//     if (!user.isVerify) {
+//       return res.status(403).json({
+//         message: "Account Unverifed!",
+
+//         user,
+//       });
+//     }
+
+//     // You can now issue a token or move to next step (e.g., profile setup)
+//     return res.status(200).json({
+//       message: "Logged successfully",
+
+//       user,
+//     });
+//   } catch (error) {
+//     console.error("OTP verification error:", error);
+//     return res.status(500).json({
+//       message: error.message || "Server error during OTP verification",
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+const Transaction = require('../models/transaction'); // Transaction model import करें
+
 exports.verify = async (req, res) => {
   try {
-    const { mobile, otp } = req.body;
+    const { mobile, referralCode, otp } = req.body;
 
     // Validate inputs
     if (!mobile || !/^[0-9]{10}$/.test(mobile)) {
@@ -1017,6 +1095,11 @@ exports.verify = async (req, res) => {
 
     if (!user) {
       let username;
+      
+      // Get current date for username
+      const currentDate = new Date();
+      const year = currentDate.getFullYear().toString().slice(-2);
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
 
       const lastEmployee = await User.findOne({ role: "customer" })
         .sort({ createdAt: -1 })
@@ -1030,32 +1113,113 @@ exports.verify = async (req, res) => {
 
       username = `CUS-${year}${month}-${count.toString().padStart(4, "0")}`;
 
-      const newUser = new User({
+      // SIMPLE REFERRAL LOGIC
+      let pointsEarned = 0;
+      let referrerUpdated = false;
+      let referrerData = null;
+      
+      // Create new user object
+      const newUserData = {
         username,
         mobile,
         isVerify: true,
         role: "customer",
         password: otp,
-      });
+        referralPoints: 0,
+        wallet: 0,
+        referralHistory: [] // Initialize empty history
+      };
 
-     const sss= await newUser.save();
+      // If referral code provided
+      if (referralCode && referralCode.trim() !== '') {
+        // Find user who owns this referral code
+        const referrer = await User.findOne({ 
+          myReferralCode: referralCode.toUpperCase().trim() 
+        });
+        
+        if (referrer && referrer.mobile !== mobile) {
+          // Give 5 points to new user
+          pointsEarned = 5;
+          
+          // Add referral info to new user
+          newUserData.usedReferralCode = referralCode.toUpperCase().trim();
+          newUserData.referralPoints = pointsEarned;
+          newUserData.wallet = pointsEarned;
+          
+          // Give 5 points to referrer also and add to history
+          referrer.referralPoints += 5;
+          referrer.wallet += 5;
+          
+          // Add to referrer's history
+          referrer.referralHistory.push({
+            mobile: mobile,
+            date: new Date(),
+            pointsEarned: 5
+          });
+          
+          // Create transaction for referrer (who gets points)
+          const referrerTransaction = new Transaction({
+            sender: "6922847591757cdd37316509",  // System gives points
+            receiver: referrer._id,
+            amount: 5,
+            type: 'deposit',
+            description: `Referral bonus for ${mobile}`
+          });
+          
+          await referrer.save();
+          await referrerTransaction.save();
+          
+          referrerUpdated = true;
+          referrerData = {
+            name: referrer.name || referrer.username,
+            mobile: referrer.mobile
+          };
+        }
+      }
+
+      const newUser = new User(newUserData);
+      const savedUser = await newUser.save();
+
+      // Generate referral code for new user if not exists
+      if (!savedUser.myReferralCode) {
+        const mobileLast4 = savedUser.mobile ? savedUser.mobile.slice(-4) : '0000';
+        const randomChars = Math.random().toString(36).substring(2, 5).toUpperCase();
+        savedUser.myReferralCode = `MOB${mobileLast4}${randomChars}`;
+        await savedUser.save();
+      }
+
+      // Create transaction for new user if they got referral points
+      if (pointsEarned > 0) {
+        const newUserTransaction = new Transaction({
+          sender: "6922847591757cdd37316509", // System gives points
+          receiver: savedUser._id,
+          amount: pointsEarned,
+          type: 'deposit',
+          description: `Welcome referral bonus`
+        });
+        await newUserTransaction.save();
+      }
+
       return res.status(200).json({
-        message: "Account Created successfully!",
-        user:sss,
+        message: referrerUpdated 
+          ? "Account Created successfully! You earned 5 points!" 
+          : "Account Created successfully!",
+        user: savedUser,
+        pointsEarned: pointsEarned,
+        referrer: referrerData
       });
     }
+
     if (!user.isVerify) {
       return res.status(403).json({
-        message: "Account Unverifed!",
-
+        message: "Account Unverified!",
         user,
       });
     }
 
     // You can now issue a token or move to next step (e.g., profile setup)
     return res.status(200).json({
-      message: "Logged successfully",
-
+      message: "Logged in successfully",
       user,
     });
   } catch (error) {
@@ -1065,6 +1229,37 @@ exports.verify = async (req, res) => {
     });
   }
 };
+
+
+
+exports.getUserReferralInfo = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId)
+      .select('myReferralCode referralPoints referralHistory name username mobile');
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    const totalReferrals = user.referralHistory?.length || 0;
+    
+    res.status(200).json({
+      ...user.toObject(),
+      totalReferrals,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+
+
+
 
 exports.updateUser = async (req, res) => {
   try {

@@ -241,7 +241,7 @@ const NotificationsScreenFromEmp = () => {
           <Icon name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <Text style={styles.headerTitle}>Message Box</Text>
         
         <TouchableOpacity
           style={styles.markAllButton}

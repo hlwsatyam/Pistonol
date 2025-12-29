@@ -41,12 +41,15 @@
 // export default Dashboard;
 
 
- import EmployeeStates from "./Dashboard/EmployeeStates";
+ import AllOrdersAdmin from "./Dashboard/AllOrdersAdmin";
+import EmployeeStates from "./Dashboard/EmployeeStates";
 import LeadAnalytics from "./Dashboard/LeadAnalytics";
 // import LeadList from "./Dashboard/LeadList";
 import QRAnalytics from "./Dashboard/QRAnalytics";
 import DistributorDashboard from "./DistributorDashboard";
 import LeadDashBoardFromEmp from "./LeadDashBoardFromEmp";
+import ReferralPointsTransfer from "../components/ReferralPointsTransfer";
+import AdminTravelDashboard from "./TravelHis";
 
 const Dashboard = ({ user }) => {
   console.log(user);
@@ -65,6 +68,10 @@ const Dashboard = ({ user }) => {
           <EmployeeStates />
           <QRAnalytics />
           <LeadAnalytics />
+
+<AllOrdersAdmin/>
+<ReferralPointsTransfer/>
+<AdminTravelDashboard/>
           {/* <LeadList /> */}
         </>
       )}

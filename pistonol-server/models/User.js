@@ -63,6 +63,63 @@ const userSchema = new mongoose.Schema({
       "Please add a valid email",
     ],
   },
+
+
+
+
+
+
+
+
+
+  myReferralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  usedReferralCode: {
+    type: String,
+    default: null,
+  },
+  referralPoints: {
+    type: Number,
+    default: 0,
+  },
+  
+  // SIMPLE HISTORY - सिर्फ ये एक फील्ड ऐड करें
+  referralHistory: [{
+    mobile: String,
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    pointsEarned: {
+      type: Number,
+      default: 0
+    }
+  }],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   panNumber: {
     type: String,
     uppercase: true,
@@ -118,6 +175,27 @@ const userSchema = new mongoose.Schema({
 });
 
  
+
+
+
+
+userSchema.pre('save', function(next) {
+  if (!this.myReferralCode) {
+    // Simple referral code: MOB + last 4 digits of mobile + random 3 letters
+    const mobileLast4 = this.mobile ? this.mobile.slice(-4) : '0000';
+    const randomChars = Math.random().toString(36).substring(2, 5).toUpperCase();
+    this.myReferralCode = `${mobileLast4}${randomChars}`;
+  }
+  next();
+});
+
+
+
+
+
+
+
+
 
 // Update timestamp on update
 userSchema.pre("findOneAndUpdate", function (next) {

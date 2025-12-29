@@ -13,6 +13,43 @@ const getCurrentMonthYear = () => {
   };
 };
 
+
+
+
+router.get('/admin/reports', async (req, res) => {
+  try {
+    const { month, year, distributorId } = req.query;
+
+    const filter = {};
+    if (month && year) {
+      filter.month = parseInt(month);
+      filter.year = parseInt(year);
+    }
+    if (distributorId) {
+      filter.distributor = distributorId;
+    }
+
+    const [monthlySales, stockReports] = await Promise.all([
+      MonthlySale.find(filter)
+        .populate('distributor', 'username name businessName mobile')
+        .sort({ year: -1, month: -1 }),
+      StockReport.find(filter)
+        .populate('distributor', 'username name businessName mobile')
+        .sort({ year: -1, month: -1 })
+    ]);
+
+    res.json({ success: true, data: { monthlySales, stockReports } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+
+
+
+
+
 // Save or update monthly sale report
 router.post('/monthly-sale', async (req, res) => {
   try {

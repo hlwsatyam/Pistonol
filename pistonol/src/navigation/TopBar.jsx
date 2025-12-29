@@ -56,37 +56,7 @@ const navigation=useNavigation()
 
 
 
-{/* <View style={{margin:10}}>
-<Button
-  title="View MY Target"
-  
-  onPress={()=> {
-
-navigation.navigate('UserTargetView', {
-  user: user,
-  userType: 'distributor'
-});
-
-  }}
-  color="#007AFF"
-/>
-</View>
-<View style={{margin:10}}>
-
-<Button
-  title="Create Order"
-  onPress={()=> {
-
-navigation.navigate('OrderManagement', {
-  user: user,
-  userType: 'distributor'
-});
-
-  }}
-  color="#007AFF"
-/>
-
-</View> */}
+ 
 
 {/* View My Target */}
 <TouchableOpacity
@@ -115,6 +85,11 @@ navigation.navigate('OrderManagement', {
     VIEW MY TARGET
   </Text>
 </TouchableOpacity>
+
+
+
+
+
 
 {/* Create Order */}
 <TouchableOpacity
@@ -149,9 +124,28 @@ navigation.navigate('OrderManagement', {
 
 
 
+<View style={{ margin: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate("OrdersManagement");
+    }}
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+      Orders Management
+    </Text>
+  </TouchableOpacity>
+</View>
 
 
 
+
+ 
 
 
 

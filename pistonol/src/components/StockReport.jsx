@@ -10,15 +10,17 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const StockReport = ({ navigation }) => {
   const [stockItems, setStockItems] = useState([{ productName: '', volumeSize: '', quantityInBox: '' }]);
   const [distributorId, setDistributorId] = useState('');
   const [loading, setLoading] = useState(false);
   const [existingReport, setExistingReport] = useState(null);
-
+  const [userx, setUser] = useState(null);
   useEffect(() => {
     loadUserData();
     loadExistingReport();
@@ -30,6 +32,7 @@ const StockReport = ({ navigation }) => {
       if (userData) {
         const user = JSON.parse(userData);
         setDistributorId(user._id);
+          setUser(user)
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -120,8 +123,65 @@ const StockReport = ({ navigation }) => {
   const isSubmitted = existingReport?.status === 'submitted';
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Stock Report</Text>
+    <SafeAreaView style={styles.container}>
+ 
+
+
+
+<View
+  style={{
+    flexDirection: 'row',
+    alignItems: 'center',
+   
+  padding:5,
+  }}
+>
+  {/* ⬅️ Back */}
+  <TouchableOpacity
+    onPress={() => navigation.goBack()}
+    style={{ width: 40 }}
+    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+  >
+    <Icon name="arrow-back" size={24} color="#000" />
+  </TouchableOpacity>
+
+  {/* 🟰 Center Title */}
+  <View style={{ flex: 1, alignItems: 'center' }}>
+    <Text
+      style={{
+        fontSize: 16,
+        fontWeight: '600',
+      }}
+    >
+      Monthly Sell
+    </Text>
+  </View>
+
+  {/* 🕘 History */}
+  <TouchableOpacity
+    onPress={() =>  navigation.navigate('StockReportHistory', { distributorId: userx._id })}
+    style={{ width: 60, alignItems: 'flex-end' }}
+  >
+    <Text
+      style={{
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#e74c3c',
+      }}
+    >
+      History
+    </Text>
+  </TouchableOpacity>
+</View>
+
+
+
+
+
+
+
+
+
       
       {isSubmitted && (
         <View style={styles.submittedBanner}>
@@ -225,7 +285,7 @@ const StockReport = ({ navigation }) => {
           </>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

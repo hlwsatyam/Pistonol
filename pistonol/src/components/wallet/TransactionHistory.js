@@ -87,10 +87,11 @@ console.log(user)
   };
 
   const getTransactionParty = (transaction) => {
+    console.log(transaction)
     if (transaction.sender._id === user?._id) {
-      return `To: ${transaction.receiver.name}`;
+      return `To: ${transaction.receiver.name  || transaction.receiver.username  }`;
     } else {
-      return `From: ${transaction.sender.name}`;
+      return `From: ${transaction.sender.name || transaction.sender.username   }`;
     }
   };
 

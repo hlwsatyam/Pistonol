@@ -62,6 +62,15 @@ const navigation=useNavigation()
 
     );
   };
+  const handleHistoryPress1 = () => {
+    navigation.navigate('NotificationsFromAdmin'
+ ,
+ {
+  userId:user._id
+ }
+
+    );
+  };
 
 
 
@@ -111,6 +120,14 @@ const navigation=useNavigation()
           >
             <Icon name="history" size={16} color="#DC2626" />
             <Text style={styles.historyText}>History</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.historyButton1}
+            onPress={handleHistoryPress1}
+          >
+            <Icon name="cancel-schedule-send" size={16} color="#DC2626" />
+            <Text style={styles.historyText}>Notification</Text>
           </TouchableOpacity>
         </View>
 
@@ -210,6 +227,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minWidth: 80,
+    justifyContent: 'center',
+  },
+  historyButton1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginTop:3,
     paddingHorizontal: 12,
     paddingVertical: 8,
     minWidth: 80,
