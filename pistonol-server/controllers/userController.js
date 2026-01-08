@@ -14,7 +14,7 @@ const month = now.format("MM"); // Month with leading zero
 
 
 
-
+console.log(year,month)
 
 
 

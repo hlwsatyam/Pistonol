@@ -351,6 +351,7 @@ const renderLeadItem = ({item}) => (
       fontSize: 18,
       fontWeight: '600',
       flex: 1,
+      color:"black",
       marginRight: 10
     }}
   >
@@ -363,7 +364,7 @@ const renderLeadItem = ({item}) => (
               onPress={() => navigation.navigate('updateTravel', {userId:user._id})}
              style={{marginHorizontal:22}}
               activeOpacity={0.8}>
-                    <Icon name="account" size={28} color="#333" />
+                    <Icon name="car" size={28} color="#333" />
             </TouchableOpacity>
 
 
