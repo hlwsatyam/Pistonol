@@ -84,7 +84,7 @@ const App = () => {
           <Stack.Screen name="TransferScreen" component={TransferScreen} />
           <Stack.Screen 
             name="NotificationScreen"
-            component={NotificationScreen}
+            component={NotificationsScreenFromEmp}
           />
           <Stack.Screen name="TestNotification" component={TestNotification} />
           <Stack.Screen name="Terms" component={TermsAndConditionsScreen} />

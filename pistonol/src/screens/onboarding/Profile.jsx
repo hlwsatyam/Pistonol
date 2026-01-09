@@ -26,16 +26,7 @@ const ProfileScreen = () => {
 
 
 
-const handleShare = async () => {
-  try {
-    await Share.share({
-      message: `⭐ Check out this amazing app!\n\n👉 Download here:\nhttps://play.google.com/store/apps/details?id=com.pistonol\n\n🎁 Use my referral code: ${user.myReferralCode}`,
-    });
-  } catch (error) {
-    console.log('Share error:', error);
-  }
-};
-
+ 
 
 
 
@@ -298,7 +289,7 @@ useFocusEffect(
             fontWeight: '600',
           }}
         >
-          Share
+          Refer & Earn
         </Text>
       </TouchableOpacity>
 

@@ -98,7 +98,7 @@ const CustomerHome = ({setScanVisible, setScanTab}) => {
 
   return (
     <ThemeWithBg>
-      <CustomerHeader />
+      <CustomerHeader userId={user?._id} />
       <ScrollView 
         style={{flex: 1, marginBottom: 60}}
         refreshControl={

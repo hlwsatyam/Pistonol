@@ -98,7 +98,7 @@ const navigation=useNavigation()
           <Text style={styles.balanceAmount}>
             ₹{walletData?.wallet?.toFixed(2) || '0.00'}
           </Text>
-          <Text style={styles.userName}>{user?.name    || 'User'}</Text>
+          
         </View>
 
         {/* Vertical Divider */}
@@ -127,7 +127,7 @@ const navigation=useNavigation()
             onPress={handleHistoryPress1}
           >
             <Icon name="cancel-schedule-send" size={16} color="#DC2626" />
-            <Text style={styles.historyText}>Notification</Text>
+            <Text style={styles.historyText}>Message Box</Text>
           </TouchableOpacity>
         </View>
 
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '500',
     marginTop: 4,
     opacity: 0.9,

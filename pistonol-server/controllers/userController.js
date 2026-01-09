@@ -1139,7 +1139,7 @@ exports.verify = async (req, res) => {
         
         if (referrer && referrer.mobile !== mobile) {
           // Give 5 points to new user
-          pointsEarned = 5;
+          pointsEarned = 10;
           
           // Add referral info to new user
           newUserData.usedReferralCode = referralCode.toUpperCase().trim();
@@ -1147,21 +1147,21 @@ exports.verify = async (req, res) => {
           newUserData.wallet = pointsEarned;
           
           // Give 5 points to referrer also and add to history
-          referrer.referralPoints += 5;
-          referrer.wallet += 5;
+          referrer.referralPoints += 10;
+          referrer.wallet += 10;
           
           // Add to referrer's history
           referrer.referralHistory.push({
             mobile: mobile,
             date: new Date(),
-            pointsEarned: 5
+            pointsEarned: 10
           });
           
           // Create transaction for referrer (who gets points)
           const referrerTransaction = new Transaction({
             sender: "6922847591757cdd37316509",  // System gives points
             receiver: referrer._id,
-            amount: 5,
+            amount: 10,
             type: 'deposit',
             description: `Referral bonus for ${mobile}`
           });

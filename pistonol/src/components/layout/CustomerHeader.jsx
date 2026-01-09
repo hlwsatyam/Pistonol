@@ -4,14 +4,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Logo} from '../../locale/Locale';
 import { useNavigation } from '@react-navigation/native';
 
-const CustomerHeader = () => {
+const CustomerHeader = ({userId}) => {
   const navigation=useNavigation()
   return (
     <View style={styles.headerWrapper}>
       <View style={styles.header}>
         <Image style={styles.img} source={Logo} />
         <View style={styles.headerIcons}>
-          <TouchableOpacity  onPress={()=> navigation.navigate('NotificationScreen') } style={styles.iconButton}>
+          <TouchableOpacity  onPress={()=> navigation.navigate('NotificationScreen' , {userId}  ) } style={styles.iconButton}>
             <Ionicons name="notifications-outline" size={24} color="#000" />
           </TouchableOpacity>
         

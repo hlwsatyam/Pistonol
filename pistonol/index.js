@@ -7,6 +7,6 @@ import {name as appName} from './app.json';
 import axios from 'axios'
 axios.defaults.baseURL = 'https://server.pistonol.cloud/api';
 //  axios.defaults.baseURL = 'http://10.160.242.180:5100/api';
-// axios.defaults.baseURL="http://10.50.205.143:5100/api"
+ 
 
 AppRegistry.registerComponent(appName, () => App);

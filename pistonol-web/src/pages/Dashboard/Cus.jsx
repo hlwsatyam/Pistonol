@@ -4,6 +4,7 @@ import { Table, Input, Button, Modal, Skeleton, notification } from 'antd';
 import axios from '../../axiosConfig';
 import { debounce } from 'lodash';
 import { SearchOutlined } from '@ant-design/icons';
+import NotificationCreate from '../../components/NotificationCreate';
  
 
 const { Search } = Input;
@@ -90,6 +91,9 @@ const CustomerTable = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+
+
+<NotificationCreate role='customer' />
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">Customer Management</h1>
       <div className="mb-4 flex justify-end">
         <Search

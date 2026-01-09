@@ -451,13 +451,15 @@ import {
   Share,
   Image,
   ScrollView,
-  BackHandler
+  BackHandler,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import QRScannerButton from '../ScannerButtonComponent';
+import { Card } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -767,6 +769,90 @@ const navigation=useNavigation()
                 <Text style={styles.userProfileUsername}>@{user?.username}</Text>
                 <Text style={styles.userProfileRole}>{user?.role?.toUpperCase()}</Text>
               </View>
+
+
+
+
+ 
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+      }}
+    >
+      {/* ⭐ Rate Us */}
+      <TouchableOpacity
+        onPress={() =>
+          Linking.openURL(
+            'https://play.google.com/store/apps/details?id=com.pistonol&hl=en_IE'
+          )
+        }
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 12,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#e74c3c',
+        }}
+        activeOpacity={0.7}
+      >
+        <Icon name="star" size={20} color="#e74c3c" />
+        <Text
+          style={{
+            marginLeft: 6,
+            color: '#e74c3c',
+            fontSize: 15,
+            fontWeight: '600',
+          }}
+        >
+          Rate Us
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+         navigation.navigate('ReferralHistory',
+
+   {
+     userId: user?._id 
+   }
+
+         )
+        }
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 12,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#e74c3c',
+        }}
+        activeOpacity={0.7}
+      >
+        <Icon name="history" size={20} color="#e74c3c" />
+        <Text
+          style={{
+            marginLeft: 6,
+            color: '#e74c3c',
+            fontSize: 15,
+            fontWeight: '600',
+          }}
+        >
+          Refer & Earn
+        </Text>
+      </TouchableOpacity>
+
+  
+    </View>
+ 
+
+
+
 
               {/* User Details Section */}
               <View style={styles.detailsSection}>

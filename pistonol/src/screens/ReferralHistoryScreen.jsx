@@ -78,7 +78,7 @@ const ReferralHistoryScreen = ({ navigation, route }) => {
     if (referralCode && referralCode !== 'Generating...') {
       Alert.alert(
         'Share Referral Code',
-        `Your referral code: ${referralCode}\n\nShare this code with friends to earn 5 points each!`,
+        `Your referral code: ${referralCode}\n\nShare this code with friends to earn 10 points each!`,
         [
           { text: 'Copy', onPress: () => copyToClipboard(referralCode) },
           { text: 'Share', onPress: () => shareReferralCode() },
@@ -278,7 +278,7 @@ const ReferralHistoryScreen = ({ navigation, route }) => {
             </TouchableOpacity>
             
             <Text style={styles.referralCardSubtitle}>
-              Share this code and earn 5 points for each successful referral
+              Share this code and earn 10 points for each successful referral
             </Text>
             
             <TouchableOpacity 
@@ -334,7 +334,7 @@ const ReferralHistoryScreen = ({ navigation, route }) => {
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>3</Text>
               </View>
-              <Text style={styles.stepText}>Both get 5 points instantly!</Text>
+              <Text style={styles.stepText}>Both get 10 points instantly!</Text>
             </View>
           </View>
         </View>
