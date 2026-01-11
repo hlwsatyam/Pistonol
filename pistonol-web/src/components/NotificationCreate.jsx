@@ -207,7 +207,7 @@ const NotificationCreate = ({role='company-employee'}) => {
   const getEmployeeDisplayName = (userId) => {
     console.log(userId)
     console.log(employees)
-    const employee = employees.find(e => e._id === userId._id);
+    const employee = employees.find(e => e._id === userId);
     if (!employee) return 'Unknown Employee';
     
     if (employee.username) return employee.username;
