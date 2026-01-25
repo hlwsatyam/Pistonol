@@ -1342,8 +1342,21 @@ exports.authUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   const { role } = req.params;
+
+  const { search } = req.query; // ← ये एक line add करें
+    let query = { role };
+    
+    // Search functionality add करें
+    if (search && search.trim() !== '') {
+      query.$or = [
+        { businessName: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
+        { username: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } }
+      ];
+    }
   try {
-    const users = await User.find({ role });
+    const users = await User.find(query);
     res.json(users);
   } catch (error) {
     console.log(error);

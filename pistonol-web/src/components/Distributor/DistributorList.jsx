@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Table,
   Space,
@@ -10,7 +10,8 @@ import {
   Image,
   Badge,
   Typography,
-  Modal,
+  Modal,  Input, // ← ADD THIS
+
   Descriptions,
   Divider,
   Row,
@@ -19,7 +20,8 @@ import {
 import {
   EditOutlined,
   DeleteOutlined,
-  UserAddOutlined,
+  UserAddOutlined,  SearchOutlined, // ← ADD THIS
+
   SyncOutlined,
   CalendarOutlined,
   CloseOutlined,
@@ -27,10 +29,19 @@ import {
 import { useDeleteUser, useUsers } from "../../utils/useUsers";
 
 const { Text, Title } = Typography;
-
+ 
 const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) => {
-  const { data: users, isLoading, isError, error, refetch } = useUsers( title?title:  "distributor");
-  console.log(users)
+
+   const [searchText, setSearchText] = useState(""); // ← State add करें
+
+  const { data: users, isLoading, isError, error, refetch } = useUsers( title?title:  "distributor"
+,
+  searchText // ← यहाँ pass करें
+
+
+  );
+const debounceRef = useRef(null);
+
   const deleteUserMutation = useDeleteUser();
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -318,14 +329,14 @@ const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) =
     </Modal>
   );
 
-  if (isLoading)
-    return (
-      <div
-        style={{ display: "flex", justifyContent: "center", padding: "50px" }}
-      >
-        <Spin size="large" />
-      </div>
-    );
+  // if (isLoading)
+  //   return (
+  //     <div
+  //       style={{ display: "flex", justifyContent: "center", padding: "50px" }}
+  //     >
+  //       <Spin size="large" />
+  //     </div>
+  //   );
 
   if (isError)
     return (
@@ -361,6 +372,35 @@ const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) =
         >
           Add  {title }
         </Button>
+
+   {/* <Input.Search
+          placeholder="Search by name, business, mobile..."
+          allowClear
+          enterButton
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 300 }}
+        /> */}
+ 
+<Input.Search
+  placeholder="Search by name, business, mobile..."
+  allowClear
+  enterButton
+  style={{ width: 300 }}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    // clear previous timer
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // debounce 500ms
+    debounceRef.current = setTimeout(() => {
+      setSearchText(value);
+    }, 500);
+  }}
+/>
         <Button
           icon={<SyncOutlined />}
           onClick={() => refetch()}
@@ -383,7 +423,7 @@ const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) =
           pageSizeOptions: ["10", "20", "50", "100"],
         }}
         scroll={{ x: true }}
-        loading={isLoading}
+        // loading={isLoading}
       />
 
       <UserDetailModal />

@@ -3,10 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { fetchUsers, createUser, updateUser, deleteUser } from "../api/auth";
 
-export const useUsers = (role) => {
+export const useUsers = (role  ,  searchTerm = "" ) => {
   return useQuery({
-    queryKey: ["users"],
-    queryFn:()=> fetchUsers (role)   ,
+  queryKey: ["users", role, searchTerm],
+    queryFn:()=> fetchUsers (role ,searchTerm  )   ,
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to fetch users");
     },

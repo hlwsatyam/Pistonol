@@ -47,7 +47,7 @@ const Login = () => {
         <div className="flex justify-center items-center gap-3">
           <img
             src={
-              "https://pistonol.com/wp-content/uploads/2023/04/Pistonol-letter-Logo-3D-effect-1536x458.png"
+              "https://i.ibb.co/Ld9gxfgT/Whats-App-Image-2026-01-25-at-1-06-36-PM.jpg"
             }
             className="w-[100px]"
           />

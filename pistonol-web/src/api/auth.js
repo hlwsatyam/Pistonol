@@ -7,8 +7,13 @@ export const login = async (data) => {
 
 
 
-export const fetchUsers = async (role) => {
-  const response = await axios.get(`/auth/byrole/${role}` );
+export const fetchUsers = async (role ,searchTerm = ""  ) => {
+  const response = await axios.get(`/auth/byrole/${role}` 
+,
+{params: { search: searchTerm } }
+
+
+  );
   return response.data;
 };
 

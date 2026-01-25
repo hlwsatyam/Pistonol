@@ -50,6 +50,7 @@ import DistributorDashboard from "./DistributorDashboard";
 import LeadDashBoardFromEmp from "./LeadDashBoardFromEmp";
 import ReferralPointsTransfer from "../components/ReferralPointsTransfer";
 import AdminTravelDashboard from "./TravelHis";
+import SetCompanyPassword from "../components/ChangePass";
 
 const Dashboard = ({ user }) => {
   console.log(user);
@@ -72,6 +73,7 @@ const Dashboard = ({ user }) => {
 <AllOrdersAdmin/>
 <ReferralPointsTransfer/>
 <AdminTravelDashboard/>
+<SetCompanyPassword/>
           {/* <LeadList /> */}
         </>
       )}

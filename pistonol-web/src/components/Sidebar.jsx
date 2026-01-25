@@ -50,8 +50,13 @@ const AppSidebar = ({ permissions ,  collapsed, setCollapsed   }) => {
       style={{ height: "100vh", position: "fixed", left: 0, top: 0, bottom: 0 }}
       className="flex flex-col bg-gray-900 z-50"
     >
-      <div className="text-white text-center py-4 font-bold flex-shrink-0 border-b border-gray-700">
-        💼 Pistonol
+      <div className="text-wh   !bg-white  text-center py-4 font-bold flex-shrink-0 border-b border-gray-700">
+          
+    <img
+          src="https://i.ibb.co/Ld9gxfgT/Whats-App-Image-2026-01-25-at-1-06-36-PM.jpg"
+          className="w-[100px]  mx-auto"
+          alt="Company Logo"
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto">

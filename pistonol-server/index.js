@@ -90,6 +90,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/customer", require("./routes/customer.js"));
 app.use("/api/leads", require("./routes/leadRoutes.js"));
+app.use("/api/leads1", require("./routes/leadRoutes1.js"));
 app.use("/api/qrcodes", require("./routes/qrCodeRoutes"));
 app.use("/api/v1/stores", require("./routes/Store.js"));
 app.use("/api/v1/travel", require("./routes/travelRoutes.js"));

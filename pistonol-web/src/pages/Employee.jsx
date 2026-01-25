@@ -82,6 +82,7 @@ import AdminTaskAssignment from "./TargetManagement";
 import AdminTaskAssignmentGlobal from "./AdminTaskAssignmentGlobal";
 import AdminStoreManager from "../components/UserStoreManager";
 import NotificationCreate from "../components/NotificationCreate";
+import AttendanceDashboard from "./Dashboard/AbsetEmp";
  
  
 
@@ -550,6 +551,13 @@ const AdminPanel = () => {
               scroll={{ x: 1000 }}
             />
           </TabPane>
+
+
+    
+          <TabPane tab="absent  list" key="absent">
+        <AttendanceDashboard/>
+          </TabPane>
+
         </Tabs>
       </Card>
 

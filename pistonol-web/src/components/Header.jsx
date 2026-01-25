@@ -34,11 +34,7 @@ const AppHeader = ({ user }) => {
     <Header className="!bg-white px-6  flex items-center justify-between border-b border-gray-200 h-16">
       {/* Left side - Logo */}
       <div className="flex items-center gap-3">
-        <img
-          src="https://pistonol.com/wp-content/uploads/2023/04/Pistonol-letter-Logo-3D-effect-1536x458.png"
-          className="w-[100px]"
-          alt="Company Logo"
-        />
+        
       </div>
 
       {/* Right side - Controls */}
@@ -59,11 +55,12 @@ const AppHeader = ({ user }) => {
             <Avatar
               size={32}
               icon={<UserOutlined />}
+              src="https://i.ibb.co/nqr7CXJk/Whats-App-Image-2026-01-25-at-1-09-15-PM.jpg"
               className="bg-blue-100 text-blue-600"
             />
             <div className="hidden md:flex flex-col">
               <span className="font-medium text-sm text-gray-800">
-                {user.username}
+                Pistonol Lubetech Pvt Limited
               </span>
               <span className="text-xs text-gray-500 capitalize">
                 {user.role}

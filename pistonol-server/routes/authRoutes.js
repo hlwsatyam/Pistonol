@@ -159,9 +159,45 @@ router.post("/login", login);
 //     });
 //   }
 // });
+ 
 
+router.put('/set-company-password', async (req, res) => {
+  try {
+    const { newPassword } = req.body;
 
+    if (!newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password required'
+      });
+    }
 
+    const user = await User.findOneAndUpdate(
+      { username: 'company123' },
+      { password: newPassword },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'COMPANY123 user not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated directly for COMPANY123'
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
 
 
 
