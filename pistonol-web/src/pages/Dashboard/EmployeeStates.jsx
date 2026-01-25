@@ -203,8 +203,8 @@ function EmployeeStates() {
             <Col xs={24} sm={12} md={6}>
               {renderStatCard(
                 <FaUserClock size={20} />,
-                'Pending Verification',
-                stats?.totalUsers - stats?.verifiedUsers || 0,
+                'Customer',
+                stats?.roleDistribution?.customer  || 0 ,
                 'yellow',
                 loading
               )}

@@ -16,7 +16,8 @@ import {
   Skeleton,
   message,
   Descriptions,
-  List
+  List,
+  Switch
 } from 'antd';
 import {
   PlusOutlined,
@@ -28,12 +29,13 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../axiosConfig';
 import TextArea from 'antd/es/input/TextArea';
+import LeadStats from './Dashboard/LeadStats';
  
 
 const { Option } = Select;
 
 const LeadManagement = ({ createdBy }) => {
-  console.log(createdBy)
+ 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
@@ -49,12 +51,12 @@ const LeadManagement = ({ createdBy }) => {
   
   const queryClient = useQueryClient();
   
- 
+   const [enabled, setEnabled] = useState(false);
  
 
 // Fetch leads with filters
 const { data, isLoading, error } = useQuery({
-  queryKey: ['leads', filters],
+  queryKey: ['leads',enabled, filters],
   queryFn: async () => {
     const params = new URLSearchParams();
 
@@ -66,6 +68,7 @@ const { data, isLoading, error } = useQuery({
     // Add extra parameters if needed
    
      createdBy?.role!=="company"  &&  params.append('id', createdBy?._id   );
+     enabled  &&  params.append('getOrderSeparate', enabled   );
  
 
     const response = await axios.get(`/leads/all/lead/list?${params.toString()}`);
@@ -237,6 +240,19 @@ const { data, isLoading, error } = useQuery({
           </Button>
         }
       >
+
+
+
+
+
+
+
+<LeadStats/>
+
+
+
+
+
         {/* Filters */}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}>
@@ -247,6 +263,13 @@ const { data, isLoading, error } = useQuery({
               onChange={(e) => handleFilterChange('search', e.target.value)}
             />
           </Col>
+
+
+ 
+        
+
+
+
           <Col span={6}>
             <Select
               placeholder="Filter by status"
@@ -275,6 +298,20 @@ const { data, isLoading, error } = useQuery({
               onChange={(e) => handleFilterChange('city', e.target.value)}
             />
           </Col>
+    <Col span={6} className="mt-4 flex items-center gap-2">
+      <span className="font-medium">
+        {enabled ? "Enabled Order Separation" : "Disabled Order Separation"}
+      </span>
+
+      <Switch
+        checked={enabled}
+        onChange={(checked) => setEnabled(checked)}
+      />
+    </Col>
+
+
+        
+    
         </Row>
         
         {/* Leads Table */}

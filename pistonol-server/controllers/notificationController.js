@@ -37,27 +37,103 @@ exports.createNotification = async (req, res) => {
     });
   }
 };
+// exports.getRecentNotifications = async (req, res) => {
+//   try {
+//     const {role}=req.query
+//     // Isko aap modify kar sakte ho ki last 50 notifications dikhaye
+//     const notifications = await Notification.find()
+//       .sort({ createdAt: -1 })
+//       .limit(50)
+//       .populate('userId', 'username name email mobile');
+    
+//     res.status(200).json({
+//       success: true,
+//       data: notifications
+//     });
+//   } catch (error) {
+//     console.error('Get recent notifications error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error'
+//     });
+//   }
+// };
+// Get user notifications
+
+
+
 exports.getRecentNotifications = async (req, res) => {
   try {
-    // Isko aap modify kar sakte ho ki last 50 notifications dikhaye
-    const notifications = await Notification.find()
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .populate('userId', 'username name email mobile');
-    
+    const { role } = req.query; // ?role=dealer
+
+    const pipeline = [
+      {
+        $lookup: {
+          from: "users", // 👈 Mongo collection name
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" }, // user array → object
+    ];
+
+    // 🔥 role filter
+    if (role) {
+      pipeline.push({
+        $match: { "user.role": role },
+      });
+    }
+
+    pipeline.push(
+      { $sort: { createdAt: -1 } },
+      { $limit: 50 },
+      {
+        $project: {
+          title: 1,
+          message: 1,
+          type: 1,
+          isRead: 1,
+          createdAt: 1,
+          user: {
+            _id: 1,
+            username: 1,
+            name: 1,
+            email: 1,
+            mobile: 1,
+            role: 1,
+          },
+        },
+      }
+    );
+
+    const notifications = await Notification.aggregate(pipeline);
+
     res.status(200).json({
       success: true,
-      data: notifications
+      count: notifications.length,
+      data: notifications,
     });
   } catch (error) {
-    console.error('Get recent notifications error:', error);
+    console.error("Notification error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
-// Get user notifications
+
+
+
+
+
+
+
+
+
+
+
+
 exports.getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;

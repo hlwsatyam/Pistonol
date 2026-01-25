@@ -38,6 +38,16 @@ router.get('/all/lead/list',    async (req, res) => {
 if (req.query.id){
   filter.createdBy=req.query.id
 }
+ 
+
+
+if (req.query.getOrderSeparate === "true") {
+  filter.$expr = {
+    $gt: [{ $strLenCP: { $trim: { input: "$servicesOffered" } } }, 0]
+  };
+}
+
+
 
     if (req.query.status) filter.status = req.query.status;
     if (req.query.state) filter.state = req.query.state;
@@ -68,6 +78,248 @@ if (req.query.id){
     res.status(500).json({ message: error.message });
   }
 });
+
+
+
+
+
+
+
+router.get('/stats/by/all', async (req, res) => {
+  try {
+    const { 
+      status, 
+      state, 
+      city, 
+      startDate, 
+      endDate, 
+      timePeriod = 'monthly' 
+    } = req.query;
+
+    // Build match query
+    const matchQuery = {};
+    
+    if (status) matchQuery.status = status;
+    if (state) matchQuery.state = state;
+    if (city) matchQuery.city = city;
+    
+    if (startDate && endDate) {
+      matchQuery.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    // Total leads
+    const totalLeads = await Lead.countDocuments(matchQuery);
+
+    // Status distribution
+    const statusDistribution = await Lead.aggregate([
+      { $match: matchQuery },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // State distribution
+    const stateDistribution = await Lead.aggregate([
+      { $match: matchQuery },
+      { $group: { _id: '$state', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // City distribution
+    const cityDistribution = await Lead.aggregate([
+      { $match: matchQuery },
+      { $group: { _id: '$city', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Time series data based on timePeriod
+    let groupByFormat = {};
+    switch (timePeriod) {
+      case 'daily':
+        groupByFormat = {
+          $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+        };
+        break;
+      case 'weekly':
+        groupByFormat = {
+          $dateToString: { format: '%Y-%U', date: '$createdAt' }
+        };
+        break;
+      case 'monthly':
+        groupByFormat = {
+          $dateToString: { format: '%Y-%m', date: '$createdAt' }
+        };
+        break;
+      case 'yearly':
+        groupByFormat = {
+          $dateToString: { format: '%Y', date: '$createdAt' }
+        };
+        break;
+      default:
+        groupByFormat = {
+          $dateToString: { format: '%Y-%m', date: '$createdAt' }
+        };
+    }
+
+    const timeSeries = await Lead.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: groupByFormat,
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Get qualified and lost leads count
+    const qualifiedLeads = await Lead.countDocuments({
+      ...matchQuery,
+      status: 'Qualified'
+    });
+
+    const lostLeads = await Lead.countDocuments({
+      ...matchQuery,
+      status: 'Lost'
+    });
+
+    // Get new leads this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const newLeadsThisMonth = await Lead.countDocuments({
+      ...matchQuery,
+      status: 'New',
+      createdAt: { $gte: startOfMonth }
+    });
+
+    // Get today's new leads
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const newLeadsToday = await Lead.countDocuments({
+      ...matchQuery,
+      status: 'New',
+      createdAt: { $gte: startOfToday }
+    });
+
+    // Calculate rates
+    const conversionRate = totalLeads > 0 
+      ? ((qualifiedLeads / totalLeads) * 100).toFixed(1)
+      : 0;
+
+    const contactRate = totalLeads > 0
+      ? ((statusDistribution.find(s => s._id === 'Contacted')?.count || 0) / totalLeads * 100).toFixed(1)
+      : 0;
+
+    const qualificationRate = statusDistribution.find(s => s._id === 'Contacted')?.count > 0
+      ? (qualifiedLeads / statusDistribution.find(s => s._id === 'Contacted')?.count * 100).toFixed(1)
+      : 0;
+
+    const lossRate = totalLeads > 0
+      ? ((lostLeads / totalLeads) * 100).toFixed(1)
+      : 0;
+
+    // Calculate average daily leads
+    const dateRangeDays = startDate && endDate 
+      ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1
+      : 30; // Default to 30 days
+
+    const avgDailyLeads = (totalLeads / dateRangeDays).toFixed(1);
+
+    // Get unique states and cities for filter dropdowns
+    const states = await Lead.distinct('state', matchQuery).then(states => 
+      states.filter(Boolean).map(state => ({ _id: state }))
+    );
+
+    const cities = await Lead.distinct('city', matchQuery).then(cities => 
+      cities.filter(Boolean).map(city => ({ _id: city }))
+    );
+
+    res.json({
+      success: true,
+      totalLeads,
+      statusDistribution,
+      stateDistribution,
+      cityDistribution,
+      timeSeries,
+      qualifiedLeads,
+      lostLeads,
+      newLeadsThisMonth,
+      newLeadsToday,
+      conversionRate: parseFloat(conversionRate),
+      contactRate: parseFloat(contactRate),
+      qualificationRate: parseFloat(qualificationRate),
+      lossRate: parseFloat(lossRate),
+      avgDailyLeads: parseFloat(avgDailyLeads),
+      avgLeadValue: 75, // Placeholder - you can calculate based on your business logic
+      avgResponseTime: 24, // Placeholder - you can calculate from feedback timestamps
+      states,
+      cities
+    });
+
+  } catch (error) {
+    console.error('Error fetching lead stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching statistics'
+    });
+  }
+});
+
+// Optional: Get lead growth over time
+router.get('/growth', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const matchQuery = {};
+    if (startDate && endDate) {
+      matchQuery.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const growthData = await Lead.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' }
+          },
+          count: { $sum: 1 },
+          qualified: {
+            $sum: { $cond: [{ $eq: ['$status', 'Qualified'] }, 1, 0] }
+          }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+    ]);
+
+    res.json({
+      success: true,
+      growthData
+    });
+  } catch (error) {
+    console.error('Error fetching growth data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching growth data'
+    });
+  }
+});
+
+
+
+
+
+
+
 
 
 

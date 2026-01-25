@@ -1,5 +1,4 @@
-// components/WalletTransfer.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from '../axiosConfig';
 import { 
   message, 
@@ -11,7 +10,14 @@ import {
   Table,
   Tag,
   Modal,
-  Statistic 
+  Statistic,
+  AutoComplete,
+  Avatar,
+  Badge,
+  Divider,
+  Tooltip,
+  Alert,
+  Spin
 } from 'antd';
 import { 
   UserOutlined, 
@@ -19,11 +25,17 @@ import {
   SearchOutlined,
   HistoryOutlined,
   ArrowUpOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  DownOutlined,
+  MoneyCollectOutlined,
+  SafetyOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import moment from 'moment';
+import debounce from 'lodash/debounce';
+import toast from 'react-hot-toast';
 
-const WalletTransfer = () => {
+const WalletTransfer = ({ adminUsername = 'company123' }) => {
   const [form] = Form.useForm();
   const [searching, setSearching] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -31,17 +43,91 @@ const WalletTransfer = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [walletHistory, setWalletHistory] = useState([]);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
+  const [adminData, setAdminData] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
 
-  // Search user by username for wallet
-  const searchUser = async (username) => {
-    if (!username.trim()) {
+  // Load admin data on component mount
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
+
+  // Fetch admin details
+  const fetchAdminData = async () => {
+    try {
+      const response = await axios.get('/auth/admin-details');
+      if (response.data.success) {
+        setAdminData(response.data.admin);
+      }
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      message.error('Failed to load admin data');
+    }
+  };
+
+  // Refresh admin balance
+  const refreshAdminBalance = async () => {
+    try {
+      const response = await axios.get('/auth/admin-details');
+      if (response.data.success) {
+        setAdminData(response.data.admin);
+        message.success('Admin balance refreshed');
+      }
+    } catch (error) {
+      console.error('Error refreshing admin data:', error);
+    }
+  };
+
+  // Debounced search for auto-suggestions
+  const searchUsers = debounce(async (query) => {
+    if (!query || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/auth/search-users/${query}`);
+      if (response.data.success) {
+        setSuggestions(response.data.users);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+  }, 300);
+
+  // Handle search input change
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    if (value) {
+      setShowSuggestions(true);
+      searchUsers(value);
+    } else {
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setUserData(null);
+    }
+  };
+
+  // Select user from suggestions
+  const handleUserSelect = (value, option) => {
+    setSearchQuery(option.label);
+    setUserData(option.user);
+    setShowSuggestions(false);
+    message.success(`Selected: ${option.user.name}`);
+  };
+
+  // Manual search by username
+  const handleManualSearch = async () => {
+    if (!searchQuery.trim()) {
       message.warning('Please enter a username');
       return;
     }
 
     setSearching(true);
     try {
-      const response = await axios.get(`/auth/userwallet/${username}`);
+      const response = await axios.get(`/auth/userwallet/${searchQuery}`);
       
       if (response.data.success) {
         setUserData(response.data.user);
@@ -55,57 +141,71 @@ const WalletTransfer = () => {
       setUserData(null);
     } finally {
       setSearching(false);
+      setShowSuggestions(false);
     }
   };
 
-  // Handle wallet transfer
+  // Handle wallet transfer (FROM ADMIN)
   const handleTransfer = async (values) => {
     if (!userData) {
-      message.warning('Please search for a user first');
+      toast.error('Please select a user first');
       return;
     }
 
+    if (!adminData) {
+      toast.error('Admin data not loaded');
+      return;
+    }
+
+    const amount = parseFloat(values.amount);
+    
+    // Check admin balance
+    if (adminData.wallet < amount) {
+      toast.error(`Insufficient admin balance. Available: ₹${adminData.wallet.toFixed(2)}`);
+      return;
+    }
+ 
+        await executeTransfer(values, amount);
+    
+  };
+
+  // Execute the transfer
+  const executeTransfer = async (values, amount) => {
     setTransferring(true);
     try {
       const transferData = {
         username: userData.username,
-        amount: parseFloat(values.amount),
-        adminName: values.adminName || 'Admin',
-        notes: values.notes || 'Direct wallet transfer'
+        amount: amount,
+        adminName: values.adminName || adminData.name || 'Admin',
+        notes: values.notes || 'Direct wallet transfer from admin'
       };
 
-      const response = await axios.post(`/auth/transfer-wallet`, transferData);
+      const response = await axios.post(`/auth/admin-transfer`, transferData);
 
       if (response.data.success) {
-        message.success(response.data.message);
+        toast.success(response.data.message);
         
-        // Update local user data
+        // Update local data
         setUserData({
           ...userData,
-          wallet: response.data.transaction.newBalance
+          wallet: response.data.transaction.userNewBalance
+        });
+        
+        // Update admin data
+        setAdminData({
+          ...adminData,
+          wallet: response.data.transaction.adminNewBalance
         });
 
-        // Show success modal
-        Modal.success({
-          title: 'Transfer Successful',
-          content: (
-            <div className="space-y-3">
-              <p><strong>Amount:</strong> ₹{response.data.transaction.amount}</p>
-              <p><strong>To:</strong> {userData.name} (@{userData.username})</p>
-              <p><strong>Previous Balance:</strong> ₹{response.data.transaction.previousBalance}</p>
-              <p><strong>New Balance:</strong> ₹{response.data.transaction.newBalance}</p>
-              <p><strong>Date:</strong> {moment(response.data.transaction.transferDate).format('DD/MM/YYYY HH:mm:ss')}</p>
-            </div>
-          ),
-          icon: <CheckCircleOutlined className="text-green-500" />,
-          okText: 'Done'
-        });
+   
 
         // Reset form
-        form.resetFields(['amount', 'adminName', 'notes']);
+        form.resetFields(['amount', 'notes']);
+        form.setFieldsValue({ adminName: adminData.name || 'Admin' });
       }
     } catch (error) {
-      message.error(error.response?.data?.message || 'Error transferring amount');
+      const errorMsg = error.response?.data?.message || 'Error transferring amount';
+      toast.error(errorMsg);
     } finally {
       setTransferring(false);
     }
@@ -138,7 +238,8 @@ const WalletTransfer = () => {
       key: 'date',
       render: (date) => moment(date).format('DD/MM/YYYY HH:mm'),
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      defaultSortOrder: 'descend'
+      defaultSortOrder: 'descend',
+      width: 150
     },
     {
       title: 'Type',
@@ -148,58 +249,128 @@ const WalletTransfer = () => {
         <Tag color={type === 'credit' ? 'green' : 'red'}>
           {type.toUpperCase()}
         </Tag>
-      )
+      ),
+      width: 100
     },
     {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
       render: (amount) => (
-        <span className="font-bold">
-          ₹{parseFloat(amount).toFixed(2)}
+        <span className={`font-bold ${amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {amount > 0 ? '+' : ''}₹{parseFloat(amount).toFixed(2)}
         </span>
-      )
+      ),
+      width: 120
     },
     {
-      title: 'Admin',
-      dataIndex: 'adminName',
-      key: 'adminName'
-    },
-    {
-      title: 'Notes',
+      title: 'Description',
       dataIndex: 'notes',
       key: 'notes',
-      ellipsis: true
+      ellipsis: true,
+      render: (text, record) => (
+        <Tooltip title={text}>
+          <span>{text}</span>
+        </Tooltip>
+      )
     },
     {
-      title: 'Balance',
-      key: 'balance',
+      title: 'From/To',
+      key: 'counterparty',
       render: (_, record) => (
-        <div>
-          <div className="text-xs text-gray-500">
-            Prev: ₹{record.previousBalance}
-          </div>
-          <div className="font-bold">
-            New: ₹{record.newBalance}
-          </div>
-        </div>
-      )
+        <span className="text-sm">
+          {record.type === 'credit' ? 
+            `From: ${record.adminName || 'Admin'}` : 
+            `To: ${record.toUser || 'User'}`
+          }
+        </span>
+      ),
+      width: 150
     }
   ];
+
+  // Format suggestions for AutoComplete
+  const suggestionOptions = suggestions.map(user => ({
+    value: user.username,
+    label: (
+      <div className="flex items-center justify-between p-2 hover:bg-blue-50">
+        <div className="flex items-center gap-3">
+          <Avatar 
+            size="small" 
+            icon={<UserOutlined />} 
+            className="bg-blue-100"
+          />
+          <div>
+            <div className="font-medium">{user.name}</div>
+            <div className="text-xs text-gray-500">@{user.username}</div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-semibold text-green-600">
+            ₹{user.wallet.toFixed(2)}
+          </div>
+          <div className="text-xs text-gray-500">{user.role}</div>
+        </div>
+      </div>
+    ),
+    user: user
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-3">
-            <WalletOutlined className="text-green-500" />
-            Wallet Transfer System
-            <WalletOutlined className="text-green-500" />
-          </h1>
-          <p className="text-gray-600">
-            Transfer amount directly to user's wallet
-          </p>
+        {/* Header with Admin Info */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                <MoneyCollectOutlined className="text-green-500" />
+                Admin Wallet Transfer
+              </h1>
+              <p className="text-gray-600">
+                Transfer amount from admin wallet to user's wallet
+              </p>
+            </div>
+            
+            {adminData ? (
+              <div className="bg-white p-4 rounded-xl shadow-lg border border-blue-200 min-w-[280px]">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-sm text-gray-500">Admin Account</p>
+                    <p className="font-bold">{adminData.name}</p>
+                    <p className="text-gray-600 text-sm">@{adminData.username}</p>
+                  </div>
+                  <Button 
+                    type="text" 
+                    icon={<ReloadOutlined />} 
+                    onClick={refreshAdminBalance}
+                    size="small"
+                  />
+                </div>
+                <Divider className="my-2" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">Available Balance</p>
+                    <Statistic
+                      value={adminData.wallet}
+                      precision={2}
+                      prefix="₹"
+                      valueStyle={{
+                        color: '#1890ff',
+                        fontSize: '22px',
+                        fontWeight: 'bold'
+                      }}
+                    />
+                  </div>
+                  <Tag color="blue" icon={<SafetyOutlined />}>
+                    ADMIN
+                  </Tag>
+                </div>
+              </div>
+            ) : (
+              <Spin tip="Loading admin data..." />
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -210,127 +381,114 @@ const WalletTransfer = () => {
               title={
                 <div className="flex items-center gap-2">
                   <SearchOutlined className="text-blue-500" />
-                  <span>Search User</span>
+                  <span>Search & Select User</span>
                 </div>
               }
               className="shadow-lg"
             >
               <div className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter username"
-                    size="large"
-                    onChange={(e) => {
-                      if (!e.target.value) setUserData(null);
-                    }}
-                    onPressEnter={(e) => searchUser(e.target.value)}
-                  />
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={<SearchOutlined />}
-                    loading={searching}
-                    onClick={() => {
-                      const username = document.querySelector('input[placeholder="Enter username"]').value;
-                      searchUser(username);
-                    }}
+                <div className="relative" ref={searchRef}>
+                  <AutoComplete
+                    options={suggestionOptions}
+                    onSelect={handleUserSelect}
+                    onSearch={handleSearchChange}
+                    value={searchQuery}
+                    open={showSuggestions && suggestions.length > 0}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className="w-full"
+                    dropdownClassName="rounded-lg shadow-xl border"
+                    dropdownMatchSelectWidth={true}
+                    filterOption={false}
                   >
-                    Search
-                  </Button>
+                    <Input
+                      placeholder="Search by username, name, email or phone..."
+                      size="large"
+                      prefix={<SearchOutlined className="text-gray-400" />}
+                      suffix={
+                        searching ? 
+                        <Spin size="small" /> : 
+                        <DownOutlined />
+                      }
+                      onPressEnter={handleManualSearch}
+                      allowClear
+                      onChange={(e) => {
+                        if (!e.target.value) {
+                          setUserData(null);
+                          setSearchQuery('');
+                        }
+                      }}
+                    />
+                  </AutoComplete>
+                  
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1">
+                      <div className="text-xs text-gray-500 px-3 py-1 bg-gray-50 rounded-t border">
+                        Found {suggestions.length} user{suggestions.length > 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<SearchOutlined />}
+                  loading={searching}
+                  onClick={handleManualSearch}
+                  block
+                >
+                  Search User
+                </Button>
 
                 {userData && (
-                  <>
-                    {/* User Info Card */}
-                    <div className="border border-green-200 bg-green-50 rounded-lg p-4 animate-fadeIn">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <UserOutlined className="text-blue-500 text-xl" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-lg text-gray-800">{userData.name || userData.username}</h3>
-                            <p className="text-gray-600">@{userData.username}</p>
-                          </div>
-                        </div>
-                        <Button
-                          icon={<HistoryOutlined />}
-                          onClick={fetchWalletHistory}
-                          loading={historyLoading}
-                        >
-                          History
-                        </Button>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white p-3 rounded-lg border">
-                          <p className="text-sm text-gray-500">Mobile</p>
-                          <p className="font-semibold">{userData.mobile || 'N/A'}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg border">
-                          <p className="text-sm text-gray-500">Email</p>
-                          <p className="font-semibold truncate">{userData.email || 'N/A'}</p>
+                  <div className="border border-green-200 bg-white rounded-xl p-4 animate-fadeIn shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar 
+                          size={56} 
+                          icon={<UserOutlined />} 
+                          className="bg-blue-100"
+                        />
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-800">{userData.name || userData.username}</h3>
+                          <p className="text-gray-600">@{userData.username}</p>
+                          <Tag color="blue" className="mt-1">{userData.role || 'Customer'}</Tag>
                         </div>
                       </div>
-
-                      {/* Wallet Balance Card */}
-                      <div className="mt-4 bg-gradient-to-r from-green-100 to-emerald-100 p-4 rounded-lg border border-green-300">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-600">Current Wallet Balance</p>
-                            <Statistic
-                              value={userData.wallet}
-                              precision={2}
-                              prefix="₹"
-                              valueStyle={{
-                                color: '#059669',
-                                fontSize: '24px',
-                                fontWeight: 'bold'
-                              }}
-                            />
-                          </div>
-                          <WalletOutlined className="text-green-500 text-3xl" />
-                        </div>
+                    
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="bg-gray-50 p-3 rounded-lg border">
+                        <p className="text-sm text-gray-500">Mobile</p>
+                        <p className="font-semibold">{userData.mobile || 'N/A'}</p>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg border">
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="font-semibold truncate">{userData.email || 'N/A'}</p>
                       </div>
                     </div>
-                  </>
+
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-300">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">User's Current Balance</p>
+                          <Statistic
+                            value={userData.wallet}
+                            precision={2}
+                            prefix="₹"
+                            valueStyle={{
+                              color: '#059669',
+                              fontSize: '24px',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                        </div>
+                        <WalletOutlined className="text-green-500 text-3xl" />
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </div>
-            </Card>
-
-            {/* Instructions Card */}
-            <Card className="shadow-lg">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">How it works</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="font-bold text-blue-600">1</span>
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium">Search User</h4>
-                      <p className="text-sm text-gray-600">Enter username to find recipient</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="font-bold text-green-600">2</span>
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium">Enter Amount</h4>
-                      <p className="text-sm text-gray-600">Specify amount to transfer</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="font-bold text-purple-600">3</span>
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium">Transfer</h4>
-                      <p className="text-sm text-gray-600">Complete the transfer</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </Card>
           </div>
@@ -340,7 +498,7 @@ const WalletTransfer = () => {
             title={
               <div className="flex items-center gap-2">
                 <ArrowUpOutlined className="text-green-500" />
-                <span>Wallet Transfer</span>
+                <span>Transfer Details</span>
               </div>
             }
             className="shadow-lg"
@@ -351,18 +509,27 @@ const WalletTransfer = () => {
                 layout="vertical"
                 onFinish={handleTransfer}
                 className="space-y-4"
+                initialValues={{
+                  adminName: adminData?.name || 'Admin'
+                }}
               >
-                <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                  <p className="text-sm text-gray-500 mb-1">Transferring to:</p>
-                  <p className="font-bold text-lg">{userData.name || userData.username}</p>
-                  <p className="text-gray-600">@{userData.username}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <WalletOutlined className="text-gray-400" />
-                    <span className="font-semibold text-green-600">
-                      Current Balance: ₹{userData.wallet}
-                    </span>
-                  </div>
-                </div>
+                <Alert
+                  message="Transfer Summary"
+                  description={
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between">
+                        <span>From Admin:</span>
+                        <span className="font-bold">{adminData?.name}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>To User:</span>
+                        <span className="font-bold">{userData.name}</span>
+                      </div>
+                    </div>
+                  }
+                  type="info"
+                  showIcon
+                />
 
                 <Form.Item
                   name="amount"
@@ -375,9 +542,17 @@ const WalletTransfer = () => {
                     },
                     {
                       validator: (_, value) => {
-                        if (value && parseFloat(value) <= 0) {
+                        if (!value) return Promise.resolve();
+                        
+                        const amount = parseFloat(value);
+                        if (amount <= 0) {
                           return Promise.reject('Amount must be greater than 0');
                         }
+                        
+                        if (adminData && amount > adminData.wallet) {
+                          return Promise.reject(`Insufficient balance. Available: ₹${adminData.wallet.toFixed(2)}`);
+                        }
+                        
                         return Promise.resolve();
                       }
                     }
@@ -390,13 +565,13 @@ const WalletTransfer = () => {
                     placeholder="Enter amount in ₹"
                     size="large"
                     prefix={<span className="text-gray-400">₹</span>}
-                    suffix={<span className="text-gray-400">INR</span>}
+                    className="h-12"
                   />
                 </Form.Item>
 
                 <Form.Item
                   name="adminName"
-                  label="Your Name (Optional)"
+                  label="Admin Name (for transaction record)"
                 >
                   <Input
                     placeholder="Enter admin name"
@@ -410,7 +585,7 @@ const WalletTransfer = () => {
                   label="Transaction Notes (Optional)"
                 >
                   <Input.TextArea
-                    placeholder="Add notes about this transaction"
+                    placeholder="Add notes about this transaction..."
                     rows={2}
                     maxLength={200}
                     showCount
@@ -424,32 +599,39 @@ const WalletTransfer = () => {
                     htmlType="submit"
                     loading={transferring}
                     block
-                    className="bg-green-500 hover:bg-green-600 border-green-500 h-12 text-lg font-semibold"
+                    className="h-12 text-lg font-semibold"
                     icon={<ArrowUpOutlined />}
+                    disabled={!adminData}
                   >
-                    Transfer to Wallet
+                    {transferring ? 'Processing...' : 'Transfer Now'}
                   </Button>
+                  
+                  <div className="text-center mt-3">
+                    <p className="text-xs text-gray-500">
+                      Admin balance will be deducted immediately
+                    </p>
+                  </div>
                 </Form.Item>
               </Form>
             ) : (
               <Result
-                icon={<SearchOutlined className="text-gray-300" />}
-                title="Search for a user first"
-                subTitle="Enter a username in the search box to begin wallet transfer"
+                icon={<SearchOutlined className="text-gray-300 text-5xl" />}
+                title="Search for a user"
+                subTitle="Search and select a user to begin transfer"
                 className="py-8"
               />
             )}
           </Card>
         </div>
 
-        {/* Recent Transfers Table (Optional) */}
+        {/* Recent Transactions */}
         {walletHistory.length > 0 && (
-          <Card className="mt-6 shadow-lg" title="Recent Wallet Transactions">
+          <Card className="mt-6 shadow-lg" title="Recent Transactions">
             <Table
               columns={historyColumns}
-              dataSource={walletHistory}
-              rowKey="_id"
-              pagination={{ pageSize: 5 }}
+              dataSource={walletHistory.slice(0, 5)}
+              rowKey={(record, index) => index}
+              pagination={false}
               size="small"
             />
           </Card>
@@ -461,7 +643,8 @@ const WalletTransfer = () => {
         title={
           <div className="flex items-center gap-2">
             <HistoryOutlined />
-            Wallet History - {userData?.name}
+            <span>Transaction History</span>
+            <Tag color="blue">{userData?.name}</Tag>
           </div>
         }
         open={isHistoryModalVisible}
@@ -471,13 +654,30 @@ const WalletTransfer = () => {
             Close
           </Button>
         ]}
-        width={1000}
+        width={900}
       >
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">{userData?.name}</p>
+              <p className="text-sm text-gray-600">@{userData?.username}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500">Current Balance</p>
+              <p className="text-xl font-bold text-green-600">
+                ₹{userData?.wallet?.toFixed(2) || '0.00'}
+              </p>
+            </div>
+          </div>
+        </div>
+        
         <Table
           columns={historyColumns}
           dataSource={walletHistory}
-          rowKey="_id"
+          rowKey={(record, index) => index}
           pagination={{ pageSize: 10 }}
+          size="middle"
+          scroll={{ x: 700 }}
         />
       </Modal>
 

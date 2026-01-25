@@ -6,6 +6,7 @@ const path = require("path");
 
 const { default: mongoose } = require("mongoose");
 const transactionx = require("../models/transaction");
+const transaction = require("../models/transaction");
 
 // Ensure directory exists
 const outputDir = path.join(__dirname, "..", "generated_qrcodes");
@@ -49,6 +50,52 @@ exports.generateQRCodes = async (req, res) => {
   try {
     const { value, quantity, client,   batchNumber } = req.body;
     const qrCodes = [];
+
+
+
+   // ✅ 1. Find company user
+    const companyUser = await User.findOne({
+      username: "company123",
+    });
+
+    // ❌ If company account not found
+    if (!companyUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Company account (company123) not found. QR not generated."
+      });
+    }
+
+    const totalAmount = value * quantity;
+
+    // 2️⃣ Wallet balance check
+    if (companyUser.wallet < totalAmount) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        message: "Insufficient wallet balance"
+      });
+    }
+
+    // 3️⃣ Cut wallet balance
+    companyUser.wallet -= totalAmount;
+    await companyUser.save({   });
+
+
+
+
+
+    await transaction.create([{
+      sender: companyUser._id,
+      receiver: companyUser._id,
+      amount: totalAmount,
+      type: "transfer",
+      description: `QR generation (${quantity} × ${value})`
+    }], {   });
+
+
+
+
+
 
     for (let i = 0; i < quantity; i++) {
       const uniqueCode = generate8DigitCode();
@@ -114,6 +161,11 @@ exports.generateQRCodes = async (req, res) => {
     res.status(500).json({ message: err.message || "Internal Server Error" });
   }
 };
+
+
+
+
+
 
 const updateCompanyWallet = async (amount, cond = "", oldAmount = "") => {
   try {

@@ -194,7 +194,9 @@ exports.updateProduct = async (req, res) => {
   try {
     const { name, description, price, category, stock } = req.body;
     const product = await Product.findById(req.params.id);
-
+console.log(req.body)
+console.log(req.files)
+console.log(req.file)
     if (!product) {
       // अगर प्रोडक्ट नहीं मिला तो नई फाइल्स डिलीट करें
       req.files?.forEach(file => {
@@ -211,6 +213,17 @@ exports.updateProduct = async (req, res) => {
       }));
       product.images = [...product.images, ...newImages];
     }
+
+
+
+  if (req.body.images && req.body.images.length > 0) {
+    product.images = req.body.images;
+  
+  }
+
+
+
+
 
     // अन्य फील्ड्स अपडेट करें
     product.name = name || product.name;

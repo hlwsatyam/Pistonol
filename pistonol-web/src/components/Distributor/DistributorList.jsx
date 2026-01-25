@@ -91,7 +91,7 @@ const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) =
       ),
     },
     {
-      title: "Name",
+      title: "Business Name",
       dataIndex: "name",
       key: "name",
       render: (name, record) => (
@@ -99,73 +99,23 @@ const DistributorList = ({ setEditUserId, title="distributor"  , showDrawer }) =
           onClick={() => showUserDetails(record)}
           style={{ cursor: "pointer" }}
         >
-          <Text strong>{name || record.username}</Text>
-          {record.role === "company" && (
-            <Tag color="red" style={{ marginLeft: 8 }}>
-              PRIMARY
-            </Tag>
-          )}
+          <Text strong>{  record.businessName}</Text>
+          {/* <Text strong>{  record.username}</Text> */}
+         
+         
         </div>
       ),
       sorter: (a, b) =>
         (a.name || a.username).localeCompare(b.name || b.username),
     },
- {
-  title: "Verification",
-  dataIndex: "isVerify",
-  key: "isVerify",
-  render: (_, record) => (
-    <div
-      onClick={() => showUserDetails(record)}
-      style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-    >
-      <Text strong>
-       
-        {record.isVerify ? (
-          <Tag color="green" style={{ marginLeft: 8 }}>
-            Verified
-          </Tag>
-        ) : (
-          <Tag color="volcano" style={{ marginLeft: 8 }}>
-            Not Verified
-          </Tag>
-        )}
-      </Text>
-
-       
-    </div>
-  ),
-  sorter: (a, b) =>
-    (a.username || "").localeCompare(b.username || ""),
-}
-,
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-      filters: [
-        { text: "Company", value: "company" },
-        { text: "Employee", value: "company-employee" },
-        { text: "Distributor", value: "distributor" },
-        { text: "Dealer", value: "dealer" },
-        { text: "Mechanic", value: "mechanic" },
-        { text: "Customer", value: "customer" },
-      ],
-      onFilter: (value, record) => record.role === value,
-      render: (role) => {
-        const roleConfig = {
-          company: { color: "volcano", text: "Company" },
-          "company-employee": { color: "orange", text: "Employee" },
-          distributor: { color: "gold", text: "Distributor" },
-          dealer: { color: "green", text: "Dealer" },
-          mechanic: { color: "blue", text: "Mechanic" },
-          customer: { color: "geekblue", text: "Customer" },
-          admin: { color: "purple", text: "Admin" },
-        };
-        const config = roleConfig[role] || { color: "default", text: role };
-        return <Tag color={config.color}>{config.text}</Tag>;
-      },
+ 
+, {
+      title: "Id",
+      dataIndex: "username",
+      key: "username",
+      render: (username) => username || "-",
     },
+    
     {
       title: "Mobile",
       dataIndex: "mobile",

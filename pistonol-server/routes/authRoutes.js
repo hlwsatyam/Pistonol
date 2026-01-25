@@ -24,27 +24,186 @@ router.post("/login", login);
 
 
 
-// Route 1: Get user by username (for wallet transfer)
-router.get('/userwallet/:username', async (req, res) => {
-  try {
-    const user = await User.findOne({ username: req.params.username });
+// // Route 1: Get user by username (for wallet transfer)
+// router.get('/userwallet/:username', async (req, res) => {
+//   try {
+//     const user = await User.findOne({ username: req.params.username });
     
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
+//     if (!user) {
+//       return res.status(404).json({ 
+//         success: false, 
+//         message: 'User not found' 
+//       });
+//     }
+
+//     res.json({
+//       success: true,
+//       user: {
+//         username: user.username,
+//         name: user.name,
+//         mobile: user.mobile,
+//         wallet: user.wallet || 0,
+//         email: user.email || 'N/A'
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: 'Server error' 
+//     });
+//   }
+// });
+
+// // Route 2: Transfer amount to user's wallet
+// router.post('/transfer-wallet', async (req, res) => {
+//   try {
+//     const { username, amount, adminName, notes } = req.body;
+
+//     // Validate input
+//     if (!username || !amount || amount <= 0) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: 'Please provide valid username and amount' 
+//       });
+//     }
+
+//     // Find user by username
+//     const user = await User.findOne({ username });
+
+//     if (!user) {
+//       return res.status(404).json({ 
+//         success: false, 
+//         message: 'User not found' 
+//       });
+//     }
+
+//     // Get current wallet balance
+//     const currentBalance = user.wallet || 0;
+    
+//     // Update user's wallet amount
+//     user.wallet = currentBalance + parseFloat(amount);
+    
+//     // Create transaction history (you might want to create a separate model for this)
+//     if (!user.walletHistory) {
+//       user.walletHistory = [];
+//     }
+    
+//     user.walletHistory.push({
+//       type: 'credit',
+//       amount: parseFloat(amount),
+//       date: new Date(),
+//       adminName: adminName || 'Admin',
+//       notes: notes || 'Direct wallet transfer',
+//       previousBalance: currentBalance,
+//       newBalance: user.wallet
+//     });
+
+//     // Update last transferred timestamp
+//     user.lastTransferedAt = new Date();
+
+//     await user.save();
+
+//     res.json({
+//       success: true,
+//       message: `₹${amount} successfully transferred to ${username}'s wallet`,
+//       transaction: {
+//         amount: amount,
+//         previousBalance: currentBalance,
+//         newBalance: user.wallet,
+//         transferDate: new Date()
+//       },
+//       user: {
+//         username: user.username,
+//         name: user.name,
+//         mobile: user.mobile,
+//         email: user.email
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: 'Server error' 
+//     });
+//   }
+// });
+
+// // Optional: Get user's wallet history
+// router.get('/wallet-history/:username', async (req, res) => {
+//   try {
+//     const user = await User.findOne({ username: req.params.username })
+//       .select('walletHistory username name mobile');
+    
+//     if (!user) {
+//       return res.status(404).json({ 
+//         success: false, 
+//         message: 'User not found' 
+//       });
+//     }
+
+//     res.json({
+//       success: true,
+//       walletHistory: user.walletHistory || [],
+//       user: {
+//         username: user.username,
+//         name: user.name,
+//         mobile: user.mobile
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: 'Server error' 
+//     });
+//   }
+// });
+
+
+
+
+
+
+// Route 1: Search users with auto-suggest (NO MODEL CHANGES)
+router.get('/search-users/:query', async (req, res) => {
+  try {
+    const { query } = req.params;
+    
+    if (!query || query.length < 2) {
+      return res.json({
+        success: true,
+        users: []
       });
     }
 
+    const users = await User.find({
+      $and: [
+        { username: { $ne: 'company123' } }, // Exclude admin from search
+        {
+          $or: [
+            { username: { $regex: query, $options: 'i' } },
+            { name: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } },
+            { mobile: { $regex: query, $options: 'i' } }
+          ]
+        }
+      ]
+    })
+    .select('username name mobile email wallet role')
+    .limit(10);
+console.log(users)
     res.json({
       success: true,
-      user: {
+      users: users.map(user => ({
         username: user.username,
-        name: user.name,
+        name: user.name || user.username,
         mobile: user.mobile,
+        email: user.email,
         wallet: user.wallet || 0,
-        email: user.email || 'N/A'
-      }
+        role: user.role,
+        displayText: `${user.name || user.username} (${user.username}) - ${user.mobile}`
+      }))
     });
   } catch (error) {
     console.error(error);
@@ -55,10 +214,43 @@ router.get('/userwallet/:username', async (req, res) => {
   }
 });
 
-// Route 2: Transfer amount to user's wallet
-router.post('/transfer-wallet', async (req, res) => {
+// Route 2: Get admin details
+router.get('/admin-details', async (req, res) => {
+  try {
+    // Admin ka username aap props se le sakte hain ya hardcode
+    const admin = await User.findOne({ username: 'company123' });
+    
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin account not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      admin: {
+        username: admin.username,
+        name: admin.name || 'Admin',
+        wallet: admin.wallet || 0,
+        mobile: admin.mobile,
+        email: admin.email
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
+// Route 3: Transfer amount from admin to user (WITHOUT MODEL CHANGES)
+router.post('/admin-transfer', async (req, res) => {
   try {
     const { username, amount, adminName, notes } = req.body;
+    const adminUsername = 'company123'; // Ya props se lein
 
     // Validate input
     if (!username || !amount || amount <= 0) {
@@ -68,8 +260,18 @@ router.post('/transfer-wallet', async (req, res) => {
       });
     }
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    // Find admin and user
+    const [admin, user] = await Promise.all([
+      User.findOne({ username: adminUsername }),
+      User.findOne({ username })
+    ]);
+
+    if (!admin) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Admin account not found' 
+      });
+    }
 
     if (!user) {
       return res.status(404).json({ 
@@ -78,62 +280,104 @@ router.post('/transfer-wallet', async (req, res) => {
       });
     }
 
-    // Get current wallet balance
-    const currentBalance = user.wallet || 0;
+    // Check if admin has sufficient balance
+    const adminBalance = admin.wallet || 0;
+    if (adminBalance < amount) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient balance. Admin balance: ₹${adminBalance}`
+      });
+    }
+
+    // Update admin wallet (deduct)
+    admin.wallet = adminBalance - parseFloat(amount);
     
-    // Update user's wallet amount
-    user.wallet = currentBalance + parseFloat(amount);
-    
-    // Create transaction history (you might want to create a separate model for this)
-    if (!user.walletHistory) {
-      user.walletHistory = [];
+    // Store transaction in admin's referralHistory (since we can't modify model)
+    if (!admin.referralHistory) {
+      admin.referralHistory = [];
     }
     
-    user.walletHistory.push({
-      type: 'credit',
-      amount: parseFloat(amount),
+    admin.referralHistory.push({
+      mobile: user.mobile || 'N/A',
       date: new Date(),
-      adminName: adminName || 'Admin',
-      notes: notes || 'Direct wallet transfer',
-      previousBalance: currentBalance,
-      newBalance: user.wallet
+      pointsEarned: -parseFloat(amount), // Negative for debit
+      notes: `Transfer to ${user.username}: ${notes || 'Direct transfer'}`,
+      transactionType: 'wallet_debit',
+      toUser: user.username,
+      toUserName: user.name
     });
 
-    // Update last transferred timestamp
-    user.lastTransferedAt = new Date();
+    // Update user wallet (add)
+    const userBalance = user.wallet || 0;
+    user.wallet = userBalance + parseFloat(amount);
+    
+    // Store transaction in user's referralHistory
+    if (!user.referralHistory) {
+      user.referralHistory = [];
+    }
+    
+    user.referralHistory.push({
+      mobile: admin.mobile || 'N/A',
+      date: new Date(),
+      pointsEarned: parseFloat(amount), // Positive for credit
+      notes: `Transfer from Admin: ${notes || 'Direct transfer'}`,
+      transactionType: 'wallet_credit',
+      fromAdmin: admin.username,
+      fromAdminName: admin.name || 'Admin'
+    });
 
-    await user.save();
+    // Save both
+    await Promise.all([admin.save(), user.save()]);
+
+    // Create Transaction record (separate model, optional)
+    const transaction = new Transaction({
+      sender: admin._id,
+      receiver: user._id,
+      amount: parseFloat(amount),
+      type: 'transfer',
+      description: notes || `Admin transfer to ${user.username}`,
+      createdAt: new Date()
+    });
+
+    await transaction.save();
 
     res.json({
       success: true,
-      message: `₹${amount} successfully transferred to ${username}'s wallet`,
+      message: `₹${amount} successfully transferred to ${user.name || user.username}`,
       transaction: {
         amount: amount,
-        previousBalance: currentBalance,
-        newBalance: user.wallet,
+        adminPreviousBalance: adminBalance,
+        adminNewBalance: admin.wallet,
+        userPreviousBalance: userBalance,
+        userNewBalance: user.wallet,
         transferDate: new Date()
       },
       user: {
         username: user.username,
-        name: user.name,
-        mobile: user.mobile,
-        email: user.email
+        name: user.name || user.username,
+        wallet: user.wallet
+      },
+      admin: {
+        username: admin.username,
+        name: admin.name || 'Admin',
+        wallet: admin.wallet
       }
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Transaction failed. Please try again.' 
     });
   }
 });
 
-// Optional: Get user's wallet history
+// Route 4: Get user's wallet history (from referralHistory)
 router.get('/wallet-history/:username', async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username })
-      .select('walletHistory username name mobile');
+      .select('referralHistory username name mobile wallet');
     
     if (!user) {
       return res.status(404).json({ 
@@ -142,13 +386,31 @@ router.get('/wallet-history/:username', async (req, res) => {
       });
     }
 
+    // Filter only wallet transactions from referralHistory
+    const walletHistory = (user.referralHistory || [])
+      .filter(record => record.transactionType?.includes('wallet'))
+      .map(record => ({
+        type: record.transactionType === 'wallet_credit' ? 'credit' : 'debit',
+        amount: Math.abs(record.pointsEarned || 0),
+        date: record.date,
+        adminName: record.fromAdminName || 'Admin',
+        notes: record.notes || 'Wallet transfer',
+        previousBalance: 0, // We don't have this in current structure
+        newBalance: user.wallet || 0,
+        counterparty: record.transactionType === 'wallet_credit' ? 
+          `From: ${record.fromAdminName || 'Admin'}` : 
+          `To: ${record.toUserName || 'User'}`
+      }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
     res.json({
       success: true,
-      walletHistory: user.walletHistory || [],
+      walletHistory: walletHistory,
       user: {
         username: user.username,
         name: user.name,
-        mobile: user.mobile
+        mobile: user.mobile,
+        wallet: user.wallet
       }
     });
   } catch (error) {
@@ -160,12 +422,51 @@ router.get('/wallet-history/:username', async (req, res) => {
   }
 });
 
+// Route 5: Get admin's transaction history
+router.get('/admin-transactions', async (req, res) => {
+  try {
+    const admin = await User.findOne({ username: 'company123' })
+      .select('referralHistory username name wallet');
+    
+    if (!admin) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Admin not found' 
+      });
+    }
 
+    // Get admin's wallet transactions from referralHistory
+    const adminHistory = (admin.referralHistory || [])
+      .filter(record => record.transactionType?.includes('wallet'))
+      .map(record => ({
+        type: 'debit', // Admin always debits
+        amount: Math.abs(record.pointsEarned || 0),
+        date: record.date,
+        toUser: record.toUserName,
+        toUsername: record.toUser,
+        notes: record.notes,
+        previousBalance: 0,
+        newBalance: admin.wallet || 0
+      }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-
-
-
-
+    res.json({
+      success: true,
+      walletHistory: adminHistory,
+      admin: {
+        username: admin.username,
+        name: admin.name || 'Admin',
+        wallet: admin.wallet
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+});
 
 
 
@@ -337,6 +638,7 @@ const {
 const User = require("../models/User");
 const sendEmail = require("../service/emailService");
 const rolePermissions = require("../config/roleAccess");
+const Transaction = require("../models/transaction");
 
 router.post("/", registerUser);
 

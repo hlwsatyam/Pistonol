@@ -77,7 +77,7 @@ router.get('/stats', async (req, res) => {
     const lastTransferredCount = await User.countDocuments({
       lastTransferedAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
     });
-
+console.log(roleDistributionObj)
     res.json({
       totalUsers,
       verifiedUsers,

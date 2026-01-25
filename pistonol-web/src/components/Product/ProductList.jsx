@@ -257,15 +257,15 @@ const ProductList = ({ setEditProductId, showDrawer }) => {
       key: "stock",
       align: 'center',
       sorter: true,
-      render: (stock, record) => (
-        <Badge
-          count={stock}
-          style={{ 
-            backgroundColor: stock > 20 ? '#52c41a' : stock > 5 ? '#faad14' : '#f5222d',
-          }}
-          showZero
-        />
-      ),
+      // render: (stock, record) => (
+      //   <Badge
+      //     count={stock}
+      //     style={{ 
+      //       backgroundColor: stock > 20 ? '#52c41a' : stock > 5 ? '#faad14' : '#f5222d',
+      //     }}
+      //     showZero
+      //   />
+      // ),
     },
     
     {

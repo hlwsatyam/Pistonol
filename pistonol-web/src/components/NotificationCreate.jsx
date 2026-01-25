@@ -71,7 +71,7 @@ const NotificationCreate = ({role='company-employee'}) => {
   const fetchRecentNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await axios.get('/notifications/recent');
+      const response = await axios.get(`/notifications/recent?role=${role}`);
       
       if (response.data.success) {
         setNotifications(response.data.data || []);
@@ -209,9 +209,9 @@ const NotificationCreate = ({role='company-employee'}) => {
     console.log(employees)
     const employee = employees.find(e => e._id === userId);
     if (!employee) return 'Unknown Employee';
-    
+      if (employee.name) return employee.name;
     if (employee.username) return employee.username;
-    if (employee.name) return employee.name;
+  
     return 'Employee';
   };
 
@@ -306,7 +306,9 @@ const NotificationCreate = ({role='company-employee'}) => {
                     </div>
                   </div>
                 </div>
-                
+                {
+                  console.log(selectedNotification)
+                }
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500">Sent To</label>
@@ -653,6 +655,9 @@ const NotificationCreate = ({role='company-employee'}) => {
                         className={`p-4 border rounded-lg transition hover:shadow-md cursor-pointer ${getTypeColor(notification.type).border}`}
                         onClick={() => handleViewNotification(notification)}
                       >
+                        {
+                          console.log(notification)
+                        }
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
@@ -669,7 +674,7 @@ const NotificationCreate = ({role='company-employee'}) => {
                             <p className="text-sm text-gray-600 mb-2 line-clamp-2">{notification.message}</p>
                             
                             <div className="flex items-center justify-between text-xs text-gray-500">
-                              <span>To: {getEmployeeDisplayName(notification.userId)}</span>
+                              <span>To: {getEmployeeDisplayName(notification.user?._id?.toString())}</span>
                               <span>{formatDate(notification.createdAt)}</span>
                             </div>
                           </div>
